@@ -78,8 +78,8 @@ namespace SoXGUI
                     p.BeginErrorReadLine();
 
                     var isTimedOut = false;
-                    // 3分以内に処理は終わらなければならないものとする
-                    if (!p.WaitForExit((int)TimeSpan.FromMinutes(3).TotalMilliseconds)) {
+                    // 1分以内に処理は終わらなければならないものとする
+                    if (!p.WaitForExit((int)TimeSpan.FromMinutes(1).TotalMilliseconds)) {
                         isTimedOut = true;
                     }
                     p.CancelOutputRead();
@@ -91,6 +91,8 @@ namespace SoXGUI
                         string msgText = (p.ExitCode == 0) ? stdout.ToString() : stderr.ToString();
                         if (p.ExitCode == 1 && string.IsNullOrWhiteSpace(msgText)) {
                             msgText = stdout.ToString();
+                        } else if (p.ExitCode == 0 && string.IsNullOrWhiteSpace(msgText)) {
+                            msgText = stderr.ToString();
                         }
                         textBoxConsole.Text = msgText;
                     }
@@ -99,6 +101,9 @@ namespace SoXGUI
                 MessageBox.Show("実行エラーが発生しました。");
             }
         }
+
+        #region オプション生成処理
+
         /// <summary>
         /// ファイル情報表示用オプションを生成します。
         /// </summary>
@@ -108,22 +113,37 @@ namespace SoXGUI
         {
             return "--i \"" + filename + "\" ";
         }
-
+        /// <summary>
+        /// ヘルプ用オプションを生成します。
+        /// </summary>
+        /// <returns>オプション文字列</returns>
         private string createGlobalHelpOption()
         {
             return "-h";
         }
-
+        /// <summary>
+        /// フォーマットヘルプのオプションを生成します。
+        /// </summary>
+        /// <param name="fmt">フォーマット文字列</param>
+        /// <returns>オプション文字列</returns>
         private string createFormatHelpOption(string fmt)
         {
             return "--help-format " + fmt;
         }
-
+        /// <summary>
+        /// エフェクトヘルプのオプションを生成します。
+        /// </summary>
+        /// <param name="effect">エフェクト文字列</param>
+        /// <returns>オプション文字列</returns>
         private string createEffectHelpOption(string effect)
         {
             return "--help-effect " + effect;
         }
-
+        /// <summary>
+        /// サンプルタイプ指定オプションを生成します。
+        /// </summary>
+        /// <param name="sampleType">サンプルタイプ文字列</param>
+        /// <returns>オプション文字列</returns>
         private string createSampleOption(string sampleType)
         {
             if (sampleType == "入力と同じ") {
@@ -131,7 +151,11 @@ namespace SoXGUI
             }
             return "-e " + sampleType + " ";
         }
-
+        /// <summary>
+        /// 量子化ビット数指定オプションを生成します。
+        /// </summary>
+        /// <param name="bitDepth">量子化ビット数指定文字列</param>
+        /// <returns>オプション文字列</returns>
         private string createBitDepthOption(string bitDepth)
         {
             if (bitDepth == "入力と同じ") {
@@ -140,7 +164,11 @@ namespace SoXGUI
             string s = bitDepth.Replace("-bit", "");
             return "-b " + s + " ";
         }
-
+        /// <summary>
+        /// サンプリングレート指定オプションを生成します。
+        /// </summary>
+        /// <param name="fs">サンプリングレート文字列</param>
+        /// <returns>オプション文字列</returns>
         private string createFsOption(string fs)
         {
             if (fs == "入力と同じ") {
@@ -167,6 +195,105 @@ namespace SoXGUI
         {
             return "-v " + vol + " ";
         }
+        /// <summary>
+        /// 拡張タブでの指定からグローバルオプションを生成します。
+        /// </summary>
+        /// <returns>オプション文字列</returns>
+        /// <remarks>UI要素を直接参照します。</remarks>
+        private string createGlobalExtendOption()
+        {
+            StringBuilder sb = new StringBuilder(32);
+
+            if (0 < cmbBoxGlobalVerbosity.SelectedIndex && cmbBoxGlobalVerbosity.SelectedIndex <= 6) {
+                sb.Append("-V");
+                sb.Append(cmbBoxGlobalVerbosity.SelectedIndex-1);
+                sb.Append(" ");
+            }
+
+            if (cBBufferSize.IsChecked.HasValue && (bool)cBBufferSize.IsChecked) {
+                sb.Append("--buffer ");
+                sb.Append(textBoxBufferSize.Text);
+                sb.Append(" ");
+            }
+
+            if (cBInBufferSize.IsChecked.HasValue && (bool)cBInBufferSize.IsChecked) {
+                sb.Append("--input-buffer ");
+                sb.Append(textBoxInBufferSize.Text);
+                sb.Append(" ");
+            }
+
+            if (cBMultiThread.IsChecked.HasValue && (bool)cBMultiThread.IsChecked) {
+                sb.Append("--multi-threaded ");
+            }
+
+            //if (cBOverwrite.IsChecked.HasValue && (bool)cBOverwrite.IsChecked) {
+            //    sb.Append("--no-clobber ");
+            //}
+
+            switch (cmbBoxInEndian.SelectedIndex) {
+                case 1:
+                    sb.Append("--endian little ");
+                    break;
+                case 2:
+                    sb.Append("--endian big ");
+                    break;
+                case 3:
+                    sb.Append("--endian swap ");
+                    break;
+                default:
+                    break;
+            }
+
+            return sb.ToString();
+        }
+        /// <summary>
+        /// 拡張タブでの指定から出力オプションを生成します。
+        /// </summary>
+        /// <returns>オプション文字列</returns>
+        /// <remarks>UI要素を直接参照します。</remarks>
+        private string createOutExtendOption()
+        {
+            StringBuilder sb = new StringBuilder(32);
+
+            if (cBComment.IsChecked.HasValue && (bool)cBComment.IsChecked) {
+                sb.Append("--add-comment ");
+                sb.Append(textBoxComment.Text);
+                sb.Append(" ");
+            }
+
+            switch (cmbBoxOutEndian.SelectedIndex) {
+                case 1:
+                    sb.Append("--endian little ");
+                    break;
+                case 2:
+                    sb.Append("--endian big ");
+                    break;
+                case 3:
+                    sb.Append("--endian swap ");
+                    break;
+                default:
+                    break;
+            }
+
+            return sb.ToString();
+        }
+        /// <summary>
+        /// 拡張タブでの指定から入力オプションを生成します。
+        /// </summary>
+        /// <returns>オプション文字列</returns>
+        /// <remarks>UI要素を直接参照します。</remarks>
+        private string createInExtendOption()
+        {
+            StringBuilder sb = new StringBuilder(32);
+
+            if (cBIgnoreLength.IsChecked.HasValue && (bool)cBIgnoreLength.IsChecked) {
+                sb.Append("--ignore-length ");
+            }
+
+            return sb.ToString();
+        }
+
+        #endregion
 
         /// <summary>
         /// 実行動作のルート
@@ -176,6 +303,7 @@ namespace SoXGUI
         {
             switch (tabControlMain.SelectedIndex) {
                 case 0:
+                case 2:
                     executeMain(showonly);
                     break;
                 case 1:
@@ -192,8 +320,10 @@ namespace SoXGUI
             if (string.IsNullOrWhiteSpace(textBoxInputFile.Text) || string.IsNullOrWhiteSpace(textBoxOutputFile.Text)) {
                 return;
             }
-            string aaa = cmbBoxOutSampleFormat.Text;
+
             StringBuilder sb = new StringBuilder();
+            sb.Append(createGlobalExtendOption());
+            sb.Append(createInExtendOption());
             sb.Append("\"");
             sb.Append(textBoxInputFile.Text);
             sb.Append("\" ");
@@ -201,8 +331,8 @@ namespace SoXGUI
             sb.Append(createBitDepthOption(cmbBoxOutSampleSize.Text));
             sb.Append(createFsOption(cmbBoxOutSampleRate.Text));
             sb.Append(createChannelOption(cmbBoxOutCh.Text));
-            sb.Append(" -S ");
             //sb.Append(createVolumeOption(textBoxOutputVolume.Text));
+            sb.Append(createOutExtendOption());
             sb.Append("\"");
             sb.Append(textBoxOutputFile.Text);
             sb.Append("\" ");
@@ -213,7 +343,10 @@ namespace SoXGUI
                 runSox(sb.ToString());
             }
         }
-
+        /// <summary>
+        /// ヘルプ実行
+        /// </summary>
+        /// <param name="showonly">真ならコマンド実行しないで文字列表示のみ</param>
         private void executeHelp(bool showonly)
         {
             string s = "";

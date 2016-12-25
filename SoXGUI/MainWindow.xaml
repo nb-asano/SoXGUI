@@ -69,18 +69,22 @@
                         <Grid Margin="0,0,0,0">
                             <Label x:Name="labelExtend1" Content="出力レベル" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
                             <ComboBox x:Name="cmbBoxGlobalVerbosity" HorizontalAlignment="Left" Margin="116,0,0,0" VerticalAlignment="Top" Width="141" SelectedIndex="0" SelectionChanged="cmbBoxHelpDiv_SelectionChanged">
+                                <ComboBoxItem>指定しない</ComboBoxItem>
                                 <ComboBoxItem>なし(0)</ComboBoxItem>
                                 <ComboBoxItem>エラーのみ(1)</ComboBoxItem>
                                 <ComboBoxItem>警告表示(2)</ComboBoxItem>
                                 <ComboBoxItem>詳細表示(3)</ComboBoxItem>
                                 <ComboBoxItem>デバッグ表示(4)</ComboBoxItem>
                             </ComboBox>
-                            <TextBox x:Name="textBoxBufferSize" HorizontalAlignment="Left" Height="23" Margin="168,27,0,0" TextWrapping="Wrap" Text="1.0" VerticalAlignment="Top" Width="89"/>
-                            <CheckBox x:Name="cBBufferSize" Content="バッファサイズを指定する" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top"/>
-                            <CheckBox x:Name="cBMultiThread" Content="マルチスレッド動作" HorizontalAlignment="Left" Margin="10,57,0,0" VerticalAlignment="Top"/>
+                            <CheckBox x:Name="cBBufferSize" Content="入出力バッファサイズを指定する" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top"/>
+                            <TextBox x:Name="textBoxBufferSize" HorizontalAlignment="Left" Height="23" Margin="183,27,0,0" TextWrapping="Wrap" Text="8192" VerticalAlignment="Top" Width="74"/>
+                            <CheckBox x:Name="cBInBufferSize" Content="入力バッファサイズを指定する" HorizontalAlignment="Left" Margin="10,59,0,0" VerticalAlignment="Top"/>
+                            <TextBox x:Name="textBoxInBufferSize" HorizontalAlignment="Left" Height="23" Margin="183,55,0,0" TextWrapping="Wrap" Text="8192" VerticalAlignment="Top" Width="74"/>
+                            <CheckBox x:Name="cBMultiThread" Content="マルチスレッド動作" HorizontalAlignment="Left" Margin="10,79,0,0" VerticalAlignment="Top"/>
+                            <!-- <CheckBox x:Name="cBOverwrite" Content="上書き確認" HorizontalAlignment="Left" Margin="10,99,0,0" VerticalAlignment="Top"/> -->
                         </Grid>
                     </GroupBox>
-                    <GroupBox x:Name="groupBoxIOExt" Header="入出力オプション" Margin="291,0,0,0" HorizontalAlignment="Left" Width="279">
+                    <GroupBox x:Name="groupBoxIOExt" Header="入出力オプション" Margin="291,0,0,85" HorizontalAlignment="Left" Width="279">
                         <Grid Margin="0,0,0,0">
                             <Label x:Name="labelExtend21" Content="入力オーダー" HorizontalAlignment="Left" Margin="10,-1,0,0" VerticalAlignment="Top"/>
                             <ComboBox x:Name="cmbBoxInEndian" HorizontalAlignment="Left" Margin="118,0,0,0" VerticalAlignment="Top" Width="139" SelectedIndex="0">
@@ -98,8 +102,10 @@
                             </ComboBox>
                             <CheckBox x:Name="cBComment" Content="コメントを指定" HorizontalAlignment="Left" Margin="10,56,0,0" VerticalAlignment="Top"/>
                             <TextBox x:Name="textBoxComment" HorizontalAlignment="Left" Height="23" Margin="118,54,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="139"/>
-                            <CheckBox x:Name="cBOverwrite" Content="上書き確認" HorizontalAlignment="Left" Margin="10,76,0,0" VerticalAlignment="Top"/>
                         </Grid>
+                    </GroupBox>
+                    <GroupBox x:Name="groupBoxInExt" Header="入力オプション" Margin="291,102,0,0" HorizontalAlignment="Left" Width="279">
+                        <CheckBox x:Name="cBIgnoreLength" Content="ヘッダーの入力サイズを無視" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
                     </GroupBox>
                 </Grid>
             </TabItem>

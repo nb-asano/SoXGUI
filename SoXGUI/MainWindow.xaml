@@ -1,0 +1,120 @@
+﻿<Window x:Name="mainWindow" x:Class="SoXGUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SoXGUI"
+        mc:Ignorable="d"
+        Icon="/SoXGUI;component/Resources/SoxGUI.ico"
+        Title="SoX-GUI" Height="485.364" Width="617.155" ResizeMode="NoResize" Loaded="Window_Loaded" Closed="Window_Closed" PreviewDragOver="mainWindow_PreviewDragOver" Drop="mainWindow_Drop" AllowDrop="True">
+    <Grid>
+        <Label x:Name="label1" Content="入力" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="label2" Content="出力" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="textBoxInputFile" Height="23" Margin="54,11,55.5,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" ToolTip="入力ファイルパス"/>
+        <TextBox x:Name="textBoxOutputFile" Height="23" Margin="54,42,56,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" ToolTip="出力ファイルパス" TextChanged="textBoxOutputFile_TextChanged"/>
+        <Button x:Name="btnRefFileIn" Content="..." HorizontalAlignment="Right" Margin="0,13,9.5,0" VerticalAlignment="Top" Width="40" Click="btnRefFileIn_Click"/>
+        <Button x:Name="btnRefFileOut" Content="..." HorizontalAlignment="Right" Margin="0,44,10,0" VerticalAlignment="Top" Width="40" Click="btnRefFileOut_Click"/>
+        <TabControl x:Name="tabControlMain" Height="215" Margin="10,72,10,0" VerticalAlignment="Top">
+            <TabItem Header="Basic">
+                <Grid Background="#FFE5E5E5" Margin="0,1,0.5,-1">
+                    <GroupBox x:Name="groupBoxInput" Header="入力" Margin="5,0,0,0" HorizontalAlignment="Left" Width="279">
+                        <Grid Margin="0,0,0,0">
+                            <Label x:Name="labelb01" Content="ファイルフォーマット" HorizontalAlignment="Left" Margin="10,-4,0,0" VerticalAlignment="Top"/>
+                            <ComboBox x:Name="cmbBoxInFileFormat" HorizontalAlignment="Left" Margin="118,0,0,0" VerticalAlignment="Top" Width="139" SelectedIndex="0">
+                                <ComboBoxItem>自動検出</ComboBoxItem>
+                            </ComboBox>
+                            <Label x:Name="labelb02" Content="サンプルフォーマット" HorizontalAlignment="Left" Margin="10,23,0,0" VerticalAlignment="Top"/>
+                            <ComboBox x:Name="cmbBoxInSampleFormat" HorizontalAlignment="Left" Margin="118,27,0,0" VerticalAlignment="Top" Width="139" IsEnabled="False"/>
+                            <Label x:Name="labelb03" Content="サンプルサイズ" HorizontalAlignment="Left" Margin="10,52,0,0" VerticalAlignment="Top"/>
+                            <ComboBox x:Name="cmbBoxInSampleSize" HorizontalAlignment="Left" Margin="118,54,0,0" VerticalAlignment="Top" Width="139" IsEnabled="False"/>
+                            <Label x:Name="labelb04" Content="サンプリングレート" HorizontalAlignment="Left" Margin="10,78,0,0" VerticalAlignment="Top"/>
+                            <ComboBox x:Name="cmbBoxInSampleRate" HorizontalAlignment="Left" Margin="118,81,0,0" VerticalAlignment="Top" Width="139" IsEnabled="False"/>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox x:Name="groupBoxOutput" Header="出力" Margin="291,0,0,0" HorizontalAlignment="Left" Width="279">
+                        <Grid Margin="0,0,0,0">
+                            <Label x:Name="labelb11" Content="ファイルフォーマット" HorizontalAlignment="Left" Margin="10,-4,0,0" VerticalAlignment="Top"/>
+                            <ComboBox x:Name="cmbBoxOutFileFormat" HorizontalAlignment="Left" Margin="118,0,0,0" VerticalAlignment="Top" Width="139" SelectedIndex="0">
+                                <ComboBoxItem>拡張子に合わせる</ComboBoxItem>
+                            </ComboBox>
+                            <Label x:Name="labelb12" Content="サンプルフォーマット" HorizontalAlignment="Left" Margin="10,23,0,0" VerticalAlignment="Top"/>
+                            <ComboBox x:Name="cmbBoxOutSampleFormat" HorizontalAlignment="Left" Margin="118,27,0,0" VerticalAlignment="Top" Width="139" SelectionChanged="cmbBoxOutSampleFormat_SelectionChanged"/>
+                            <Label x:Name="labelb13" Content="サンプルサイズ" HorizontalAlignment="Left" Margin="10,52,0,0" VerticalAlignment="Top"/>
+                            <ComboBox x:Name="cmbBoxOutSampleSize" HorizontalAlignment="Left" Margin="118,54,0,0" VerticalAlignment="Top" Width="139"/>
+                            <Label x:Name="labelb14" Content="サンプリングレート" HorizontalAlignment="Left" Margin="10,78,0,0" VerticalAlignment="Top"/>
+                            <ComboBox x:Name="cmbBoxOutSampleRate" HorizontalAlignment="Left" Margin="118,81,0,0" VerticalAlignment="Top" Width="139"/>
+                            <Label x:Name="labelb15" Content="チャンネル数" HorizontalAlignment="Left" Margin="10,105,0,0" VerticalAlignment="Top"/>
+                            <ComboBox x:Name="cmbBoxOutCh" HorizontalAlignment="Left" Margin="118,108,0,0" VerticalAlignment="Top" Width="139"/>
+                            <Label x:Name="labelb16" Content="ボリューム" HorizontalAlignment="Left" Margin="10,134,0,0" VerticalAlignment="Top" RenderTransformOrigin="0.517,1.009"/>
+                            <TextBox x:Name="textBoxOutputVolume" HorizontalAlignment="Left" Height="23" Margin="118,135,0,0" TextWrapping="Wrap" Text="1.0" VerticalAlignment="Top" Width="139"/>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Help">
+                <Grid Background="#FFE5E5E5">
+                    <Label x:Name="labelHelp1" Content="区分" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <ComboBox x:Name="cmbBoxHelpDiv" HorizontalAlignment="Left" Margin="86,13,0,0" VerticalAlignment="Top" Width="141" SelectedIndex="0" SelectionChanged="cmbBoxHelpDiv_SelectionChanged">
+                        <ComboBoxItem>全体</ComboBoxItem>
+                        <ComboBoxItem>フォーマット</ComboBoxItem>
+                        <ComboBoxItem>エフェクト</ComboBoxItem>
+                    </ComboBox>
+                    <Label x:Name="labelHelp2" Content="フォーマット" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top"/>
+                    <ComboBox x:Name="cmbBoxHelp2nd" HorizontalAlignment="Left" Margin="86,45,0,0" VerticalAlignment="Top" Width="141" IsEnabled="False"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Extend">
+                <Grid Background="#FFE5E5E5">
+                    <GroupBox x:Name="groupBoxGlobal" Header="グローバルオプション" Margin="5,0,0,0" HorizontalAlignment="Left" Width="279">
+                        <Grid Margin="0,0,0,0">
+                            <Label x:Name="labelExtend1" Content="出力レベル" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
+                            <ComboBox x:Name="cmbBoxGlobalVerbosity" HorizontalAlignment="Left" Margin="116,0,0,0" VerticalAlignment="Top" Width="141" SelectedIndex="0" SelectionChanged="cmbBoxHelpDiv_SelectionChanged">
+                                <ComboBoxItem>なし(0)</ComboBoxItem>
+                                <ComboBoxItem>エラーのみ(1)</ComboBoxItem>
+                                <ComboBoxItem>警告表示(2)</ComboBoxItem>
+                                <ComboBoxItem>詳細表示(3)</ComboBoxItem>
+                                <ComboBoxItem>デバッグ表示(4)</ComboBoxItem>
+                            </ComboBox>
+                            <TextBox x:Name="textBoxBufferSize" HorizontalAlignment="Left" Height="23" Margin="168,27,0,0" TextWrapping="Wrap" Text="1.0" VerticalAlignment="Top" Width="89"/>
+                            <CheckBox x:Name="cBBufferSize" Content="バッファサイズを指定する" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top"/>
+                            <CheckBox x:Name="cBMultiThread" Content="マルチスレッド動作" HorizontalAlignment="Left" Margin="10,57,0,0" VerticalAlignment="Top"/>
+                        </Grid>
+                    </GroupBox>
+                    <GroupBox x:Name="groupBoxIOExt" Header="入出力オプション" Margin="291,0,0,0" HorizontalAlignment="Left" Width="279">
+                        <Grid Margin="0,0,0,0">
+                            <Label x:Name="labelExtend21" Content="入力オーダー" HorizontalAlignment="Left" Margin="10,-1,0,0" VerticalAlignment="Top"/>
+                            <ComboBox x:Name="cmbBoxInEndian" HorizontalAlignment="Left" Margin="118,0,0,0" VerticalAlignment="Top" Width="139" SelectedIndex="0">
+                                <ComboBoxItem>変更なし</ComboBoxItem>
+                                <ComboBoxItem>リトルエンディアン</ComboBoxItem>
+                                <ComboBoxItem>ビッグエンディアン</ComboBoxItem>
+                                <ComboBoxItem>スワップ</ComboBoxItem>
+                            </ComboBox>
+                            <Label x:Name="labelExtend22" Content="出力オーダー" HorizontalAlignment="Left" Margin="10,25,0,0" VerticalAlignment="Top"/>
+                            <ComboBox x:Name="cmbBoxOutEndian" HorizontalAlignment="Left" Margin="118,27,0,0" VerticalAlignment="Top" Width="139" SelectedIndex="0">
+                                <ComboBoxItem>変更なし</ComboBoxItem>
+                                <ComboBoxItem>リトルエンディアン</ComboBoxItem>
+                                <ComboBoxItem>ビッグエンディアン</ComboBoxItem>
+                                <ComboBoxItem>スワップ</ComboBoxItem>
+                            </ComboBox>
+                            <CheckBox x:Name="cBComment" Content="コメントを指定" HorizontalAlignment="Left" Margin="10,56,0,0" VerticalAlignment="Top"/>
+                            <TextBox x:Name="textBoxComment" HorizontalAlignment="Left" Height="23" Margin="118,54,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="139"/>
+                            <CheckBox x:Name="cBOverwrite" Content="上書き確認" HorizontalAlignment="Left" Margin="10,76,0,0" VerticalAlignment="Top"/>
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="GUI設定">
+                <Grid Background="#FFE5E5E5">
+                    <Label x:Name="label11" Content="SoXパス" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="textBoxSoxPath" Height="23" Margin="64,12,55,0" TextWrapping="NoWrap" Text="" VerticalAlignment="Top" ToolTip="SoXのパス"/>
+                    <Button x:Name="btnSoXPath" Content="..." HorizontalAlignment="Right" Margin="0,14,10,0" VerticalAlignment="Top" Width="40" Click="btnSoXPath_Click"/>
+                    <CheckBox x:Name="chBoxShowInfo" Content="入力ファイル情報を常に表示する" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top" Checked="chBoxShowInfo_Checked" Unchecked="chBoxShowInfo_Unchecked"/>
+                </Grid>
+            </TabItem>
+        </TabControl>
+        <Button x:Name="btnRun" Content="実行" HorizontalAlignment="Right" Margin="0,292,10,0" VerticalAlignment="Top" Width="74" Click="btnRun_Click"/>
+        <Button x:Name="btnCmdShow" Content="コマンド表示" HorizontalAlignment="Right" Margin="0,292,89,0" VerticalAlignment="Top" Width="75" Click="btnCmdShow_Click"/>
+        <TextBox x:Name="textBoxConsole" Margin="10,317,10,10" TextWrapping="Wrap" Text=""/>
+
+    </Grid>
+</Window>

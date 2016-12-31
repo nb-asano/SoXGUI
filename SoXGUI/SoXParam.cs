@@ -4,6 +4,8 @@ using System.Text;
 
 namespace SoXGUI
 {
+    #region フォーマット関連
+
     /// <summary>
     /// SoXで設定可能なフォーマットオプションを取得するインターフェース
     /// </summary>
@@ -78,11 +80,83 @@ namespace SoXGUI
         }
     }
 
-    static class SoXParamDictionary
+    #endregion
+
+    #region エフェクト関連
+
+    public class EffectParamCombi
     {
-        public static readonly Dictionary<string, SoXParam> dict = new Dictionary<string, SoXParam>()
+        /// <summary>パラメータ項目名</summary>
+        public string Name { get; private set; }
+        public string Unit { get; private set; }
+        public bool IsSelectable { get; private set; }
+
+        public EffectParamCombi(string name, string unit, bool isSelectable)
+        {
+            Name = name;
+            Unit = unit;
+            IsSelectable = isSelectable;
+        }
+    }
+
+    public interface ISoXEffectParam
+    {
+        List<EffectParamCombi> getParamCombi();
+    }
+
+    /// <summary>
+    /// パラメータなしを意味する共通のエフェクト情報クラス
+    /// </summary>
+    public class NoneParamEffect : ISoXEffectParam
+    {
+        public List<EffectParamCombi> getParamCombi()
+        {
+            return new List<EffectParamCombi>();
+        }
+    }
+
+    /// <summary>
+    /// 1パラメータを意味する共通のエフェクト情報クラス
+    /// </summary>
+    /// <remarks>
+    /// 選択式パラメータには対応していません。
+    /// </remarks>
+    public class OneParamEffect : ISoXEffectParam
+    {
+        private List<EffectParamCombi> list;
+
+        public List<EffectParamCombi> getParamCombi()
+        {
+            return list;
+        }
+
+        public OneParamEffect(string name, string unit)
+        {
+            list = new List<EffectParamCombi>();
+            list.Add(new EffectParamCombi(name, unit, false));
+        }
+    }
+
+    #endregion
+
+    /// <summary>
+    /// 定数宣言
+    /// </summary>
+    static class SoXConstants
+    {
+        /// <summary>
+        /// フォーマットパラメータテーブル
+        /// </summary>
+        public static readonly Dictionary<string, SoXParam> fmtDict = new Dictionary<string, SoXParam>()
         {
             { "wav", new SoXParamWav() }
         };
+        public static readonly Dictionary<string, ISoXEffectParam> effDict = new Dictionary<string, ISoXEffectParam>()
+        {
+            { "norm", new OneParamEffect("ゲイン", "dB(～0dB)") },
+            { "reverse", new NoneParamEffect() }
+        };
+        public static readonly string[] format = new string[] { "8svx", "aif", "aifc", "aiff", "aiffc", "al", "amb", "amr-nb", "amr-wb", "anb", "au", "avr", "awb", "cdda", "cdr", "cvs", "cvsd", "cvu", "dat", "dvms", "f32", "f4", "f64", "f8", "flac", "fssd", "gsm", "gsrt", "hcom", "htk", "ima", "ircam", "la", "lpc", "lpc10", "lu", "maud", "mp2", "mp3", "nist", "ogg", "prc", "raw", "s1", "s16", "s2", "s24", "s3", "s32", "s4", "s8", "sb", "sf", "sl", "sln", "smp", "snd", "sndr", "sndt", "sou", "sox", "sph", "sw", "txw", "u1", "u16", "u2", "u24", "u3", "u32", "u4", "u8", "ub", "ul", "uw", "vms", "voc", "vorbis", "vox", "wav", "wavpcm", "wv", "wve", "xa" };
+        public static readonly string[] effect = new string[] { "allpass", "band", "bandpass", "bandreject", "bass", "bend", "biquad", "chorus", "channels", "compand", "contrast", "dcshift", "deemph", "delay", "dither", "divide", "downsample", "earwax", "echo", "echos", "equalizer", "fade", "fir", "firfit", "flanger", "gain", "highpass", "hilbert", "input", "ladspa", "loudness", "lowpass", "mcompand", "noiseprof", "noisered", "norm", "oops", "output", "overdrive", "pad", "phaser", "pitch", "rate", "remix", "repeat", "reverb", "reverse", "riaa", "silence", "sinc", "spectrogram", "speed", "splice", "stat", "stats", "stretch", "swap", "synth", "tempo", "treble", "tremolo", "trim", "upsample", "vad", "vol" };
     }
 }

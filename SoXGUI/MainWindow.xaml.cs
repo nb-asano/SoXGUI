@@ -1,6 +1,7 @@
 ﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -24,11 +25,20 @@ namespace SoXGUI
     {
         /// <summary>動作設定</summary>
         private GuiSetting m_GuiSetting = new GuiSetting();
+        /// <summary>直前の表示状態</summary>
         private PrevOutputSelection m_PrevOut = new PrevOutputSelection();
+        /// <summary>エフェクトリストボックスのデータソース</summary>
+        private ObservableCollection<EffCmd> m_EffList = new ObservableCollection<EffCmd>();
 
         public MainWindow()
         {
             InitializeComponent();
+
+            // エフェクトタブ
+            cmbBoxEffType.ItemsSource = SoXConstants.effect;
+            cmbBoxEffType.SelectedIndex = 0;
+
+            this.DataContext = m_EffList;
         }
 
         #region 共通部イベントハンドラ
@@ -75,6 +85,31 @@ namespace SoXGUI
             m_GuiSetting.SaveToUserData();
         }
 
+        private void mainWindow_PreviewDragOver(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop, true)) {
+                e.Effects = DragDropEffects.Copy;
+            } else {
+                e.Effects = DragDropEffects.None;
+            }
+            e.Handled = true;
+        }
+
+        private void mainWindow_Drop(object sender, DragEventArgs e)
+        {
+            string[] files = e.Data.GetData(DataFormats.FileDrop) as string[];
+            if (files != null) {
+                if (files.Length >= 1) {
+                    textBoxInputFile.Text = files[0];
+                    executeInputFileChange(files[0]);
+                }
+                if (files.Length >= 2) {
+                    textBoxOutputFile.Text = files[1];
+                    executeOutputFileChange(cmbBoxOutSampleFormat, files[1]);
+                }
+            }
+        }
+
         private void btnRefFileIn_Click(object sender, RoutedEventArgs e)
         {
             var ofd = new OpenFileDialog();
@@ -108,6 +143,98 @@ namespace SoXGUI
 
         #endregion
 
+        #region Effectタブイベントハンドラ
+
+        private void cmbBoxEffType_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string s = SoXConstants.effect[cmbBoxEffType.SelectedIndex];
+            switch (s) {
+                case "allpass":
+                    labelEffParam1.Content = "カットオフ";
+                    //textBoxEffParam1.Visibility = Visibility.Hidden;
+                    textBoxEffParam1.IsEnabled = true;
+                    labelEffUnit1.Content = "kHz";
+                    btnEffAdd.IsEnabled = true;
+                    break;
+                case "norm": {
+                        List<EffectsInputUISet> uiList = new List<EffectsInputUISet>()
+                        {
+                            new EffectsInputUISet(label:labelEffParam1,textBox:textBoxEffParam1,unit:labelEffUnit1),
+                            new EffectsInputUISet(label:labelEffParam2,textBox:textBoxEffParam2,unit:labelEffUnit2),
+                            new EffectsInputUISet(label:labelEffParam3,textBox:textBoxEffParam3,unit:labelEffUnit3)
+                        };
+                        btnEffAdd.IsEnabled = loadEffectsInputParameter(s, uiList);
+                    }
+                    //labelEffParam1.Content = "ゲイン";
+                    //textBoxEffParam1.IsEnabled = true;
+                    //labelEffUnit1.Content = "dB(～0dB)";
+                    //btnEffAdd.IsEnabled = true;
+                    break;
+                case "speed":
+                    labelEffParam1.Content = "速度";
+                    textBoxEffParam1.IsEnabled = true;
+                    labelEffUnit1.Content = "倍率(0～1.0～)";
+                    btnEffAdd.IsEnabled = true;
+                    break;
+                case "reverse":
+                    textBoxEffParam1.IsEnabled = false;
+                    btnEffAdd.IsEnabled = true;
+                    break;
+                default: {
+                        List<EffectsInputUISet> uiList = new List<EffectsInputUISet>()
+                        {
+                            new EffectsInputUISet(label:labelEffParam1,textBox:textBoxEffParam1,unit:labelEffUnit1),
+                            new EffectsInputUISet(label:labelEffParam2,textBox:textBoxEffParam2,unit:labelEffUnit2),
+                            new EffectsInputUISet(label:labelEffParam3,textBox:textBoxEffParam3,unit:labelEffUnit3)
+                        };
+                        btnEffAdd.IsEnabled = loadEffectsInputParameter(s, uiList);
+                    }
+                    //textBoxEffParam1.IsEnabled = false;
+                    //btnEffAdd.IsEnabled = false;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// 追加ボタンクリック
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnEffAdd_Click(object sender, RoutedEventArgs e)
+        {
+            string s = SoXConstants.effect[cmbBoxEffType.SelectedIndex];
+            switch (s) {
+                case "reverse":
+                    m_EffList.Add(new EffCmd(s, "reverse"));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void btnEffDel_Click(object sender, RoutedEventArgs e)
+        {
+            if (listBoxEffects.SelectedIndex != -1) {
+                m_EffList.RemoveAt(listBoxEffects.SelectedIndex);
+            }
+        }
+
+        private void btnEffUp_Click(object sender, RoutedEventArgs e)
+        {
+            if (listBoxEffects.SelectedIndex != -1) {
+
+            }
+        }
+
+        private void btnEffDown_Click(object sender, RoutedEventArgs e)
+        {
+            if (listBoxEffects.SelectedIndex != -1) {
+
+            }
+        }
+
+        #endregion
+
         #region ヘルプタブイベントハンドラ
 
         private void cmbBoxHelpDiv_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -122,17 +249,17 @@ namespace SoXGUI
                 case 1:
                     labelHelp2.Content = "フォーマット";
                     if (cmbBoxHelp2nd != null) {
-                        cmbBoxHelp2nd.SelectedIndex = 0;
                         cmbBoxHelp2nd.IsEnabled = true;
-                        cmbBoxHelp2nd.ItemsSource = new string[] { "8svx", "aif", "aifc", "aiff", "aiffc", "al", "amb", "amr-nb", "amr-wb", "anb", "au", "avr", "awb", "cdda", "cdr", "cvs", "cvsd", "cvu", "dat", "dvms", "f32", "f4", "f64", "f8", "flac", "fssd", "gsm", "gsrt", "hcom", "htk", "ima", "ircam", "la", "lpc", "lpc10", "lu", "maud", "mp2", "mp3", "nist", "ogg", "prc", "raw", "s1", "s16", "s2", "s24", "s3", "s32", "s4", "s8", "sb", "sf", "sl", "sln", "smp", "snd", "sndr", "sndt", "sou", "sox", "sph", "sw", "txw", "u1", "u16", "u2", "u24", "u3", "u32", "u4", "u8", "ub", "ul", "uw", "vms", "voc", "vorbis", "vox", "wav", "wavpcm", "wv", "wve", "xa" };
+                        cmbBoxHelp2nd.ItemsSource = SoXConstants.format;
+                        cmbBoxHelp2nd.SelectedIndex = 0;
                     }
                     break;
                 case 2:
                     labelHelp2.Content = "エフェクト";
                     if (cmbBoxHelp2nd != null) {
-                        cmbBoxHelp2nd.SelectedIndex = 0;
                         cmbBoxHelp2nd.IsEnabled = true;
-                        cmbBoxHelp2nd.ItemsSource = new string[] { "allpass", "band", "bandpass", "bandreject", "bass", "bend", "biquad", "chorus", "channels", "compand", "contrast", "dcshift", "deemph", "delay", "dither", "divide", "downsample", "earwax", "echo", "echos", "equalizer", "fade", "fir", "firfit", "flanger", "gain", "highpass", "hilbert", "input", "ladspa", "loudness", "lowpass", "mcompand", "noiseprof", "noisered", "norm", "oops", "output", "overdrive", "pad", "phaser", "pitch", "rate", "remix", "repeat", "reverb", "reverse", "riaa", "silence", "sinc", "spectrogram", "speed", "splice", "stat", "stats", "stretch", "swap", "synth", "tempo", "treble", "tremolo", "trim", "upsample", "vad", "vol" };
+                        cmbBoxHelp2nd.ItemsSource = SoXConstants.effect;
+                        cmbBoxHelp2nd.SelectedIndex = 0;
                     }
                     break;
             }
@@ -173,31 +300,6 @@ namespace SoXGUI
         }
 
         #endregion
-
-        private void mainWindow_PreviewDragOver(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop, true)) {
-                e.Effects = DragDropEffects.Copy;
-            } else {
-                e.Effects = DragDropEffects.None;
-            }
-            e.Handled = true;
-        }
-
-        private void mainWindow_Drop(object sender, DragEventArgs e)
-        {
-            string[] files = e.Data.GetData(DataFormats.FileDrop) as string[];
-            if (files != null) {
-                if (files.Length >= 1) {
-                    textBoxInputFile.Text = files[0];
-                    executeInputFileChange(files[0]);
-                }
-                if (files.Length >= 2) {
-                    textBoxOutputFile.Text = files[1];
-                    executeOutputFileChange(cmbBoxOutSampleFormat, files[1]);
-                }
-            }
-        }
 
         private void textBoxOutputFile_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -241,6 +343,23 @@ namespace SoXGUI
         public void indexReset()
         {
             FormatIndex = -1;
+        }
+    }
+
+    /// <summary>
+    /// エフェクト一覧のListBoxにBindingするクラス
+    /// </summary>
+    public class EffCmd
+    {
+        /// <summary>エフェクト名</summary>
+        public string Effect { get; private set; }
+        /// <summary>エフェクトのコマンドオプション</summary>
+        public string Command { get; private set; }
+
+        public EffCmd(string name, string cmd)
+        {
+            Effect = name;
+            Command = cmd;
         }
     }
 }

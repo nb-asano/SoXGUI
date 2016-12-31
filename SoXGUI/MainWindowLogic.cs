@@ -303,10 +303,11 @@ namespace SoXGUI
         {
             switch (tabControlMain.SelectedIndex) {
                 case 0:
+                case 1:
                 case 2:
                     executeMain(showonly);
                     break;
-                case 1:
+                case 3:
                     executeHelp(showonly);
                     break;
                 default:
@@ -386,8 +387,8 @@ namespace SoXGUI
             string ext = getLowerExtension(filePath);
             System.Diagnostics.Debug.WriteLine("cmbbox format change:" + ext);
 
-            if (SoXParamDictionary.dict.ContainsKey(ext)) {
-                ISoXParam param = SoXParamDictionary.dict[ext];
+            if (SoXConstants.fmtDict.ContainsKey(ext)) {
+                ISoXParam param = SoXConstants.fmtDict[ext];
 
                 // イベントを連鎖させる
                 cmbboxFormat.ItemsSource = param.getSampleFormatTable();
@@ -403,8 +404,8 @@ namespace SoXGUI
         {
             string ext = getLowerExtension(filePath);
             System.Diagnostics.Debug.WriteLine("cmbbox format change:" + ext + " index:" + index);
-            if (SoXParamDictionary.dict.ContainsKey(ext)) {
-                ISoXParam param = SoXParamDictionary.dict[ext];
+            if (SoXConstants.fmtDict.ContainsKey(ext)) {
+                ISoXParam param = SoXConstants.fmtDict[ext];
 
                 cmbboxSample.ItemsSource = param.getBitDepthTable(index);
                 cmbboxSample.SelectedIndex = 0;
@@ -415,6 +416,55 @@ namespace SoXGUI
                 cmbboxCh.ItemsSource = param.getChTable();
                 cmbboxCh.SelectedIndex = 0;
             }
+        }
+
+        class EffectsInputUISet
+        {
+            public readonly System.Windows.Controls.Label Label;
+            public readonly System.Windows.Controls.TextBox TextBox;
+            public readonly System.Windows.Controls.Label Unit;
+
+            public EffectsInputUISet(System.Windows.Controls.Label label, System.Windows.Controls.TextBox textBox, System.Windows.Controls.Label unit)
+            {
+                Label = label;
+                TextBox = textBox;
+                Unit = unit;
+            }
+        }
+
+        private bool loadEffectsInputParameter(string name, List<EffectsInputUISet> uiList)
+        {
+            bool isEnable = false;
+
+            if (SoXConstants.effDict.ContainsKey(name)) {
+                isEnable = true;
+                ISoXEffectParam param = SoXConstants.effDict[name];
+
+                List<EffectParamCombi> listEPC = param.getParamCombi();
+                for (int i = 0; i < uiList.Count; i++) {
+                    if (i < listEPC.Count) {
+                        uiList[i].Label.Content = listEPC[i].Name;
+                        uiList[i].Unit.Content = listEPC[i].Unit;
+                        if (listEPC[i].IsSelectable) {
+                            uiList[i].TextBox.Visibility = Visibility.Hidden;
+                        } else {
+                            uiList[i].TextBox.Visibility = Visibility.Visible;
+                            uiList[i].TextBox.IsEnabled = true;
+                        }
+                    } else {
+                        // テキストにして使用不可にする
+                        uiList[i].TextBox.Visibility = Visibility.Visible;
+                        uiList[i].TextBox.IsEnabled = false;
+                    }
+                }
+            } else {
+                // 未対応の場合
+                foreach (EffectsInputUISet eui in uiList) {
+                    eui.TextBox.Visibility = Visibility.Visible;
+                    eui.TextBox.IsEnabled = false;
+                }
+            }
+            return isEnable;
         }
     }
 }

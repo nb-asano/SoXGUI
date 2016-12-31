@@ -51,30 +51,18 @@
                     </GroupBox>
                 </Grid>
             </TabItem>
-            <TabItem Header="Help">
-                <Grid Background="#FFE5E5E5">
-                    <Label x:Name="labelHelp1" Content="区分" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-                    <ComboBox x:Name="cmbBoxHelpDiv" HorizontalAlignment="Left" Margin="86,13,0,0" VerticalAlignment="Top" Width="141" SelectedIndex="0" SelectionChanged="cmbBoxHelpDiv_SelectionChanged">
-                        <ComboBoxItem>全体</ComboBoxItem>
-                        <ComboBoxItem>フォーマット</ComboBoxItem>
-                        <ComboBoxItem>エフェクト</ComboBoxItem>
-                    </ComboBox>
-                    <Label x:Name="labelHelp2" Content="フォーマット" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top"/>
-                    <ComboBox x:Name="cmbBoxHelp2nd" HorizontalAlignment="Left" Margin="86,45,0,0" VerticalAlignment="Top" Width="141" IsEnabled="False"/>
-                </Grid>
-            </TabItem>
             <TabItem Header="Extend">
                 <Grid Background="#FFE5E5E5">
                     <GroupBox x:Name="groupBoxGlobal" Header="グローバルオプション" Margin="5,0,0,0" HorizontalAlignment="Left" Width="279">
                         <Grid Margin="0,0,0,0">
                             <Label x:Name="labelExtend1" Content="出力レベル" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top"/>
-                            <ComboBox x:Name="cmbBoxGlobalVerbosity" HorizontalAlignment="Left" Margin="116,0,0,0" VerticalAlignment="Top" Width="141" SelectedIndex="0" SelectionChanged="cmbBoxHelpDiv_SelectionChanged">
-                                <ComboBoxItem>指定しない</ComboBoxItem>
-                                <ComboBoxItem>なし(0)</ComboBoxItem>
-                                <ComboBoxItem>エラーのみ(1)</ComboBoxItem>
-                                <ComboBoxItem>警告表示(2)</ComboBoxItem>
-                                <ComboBoxItem>詳細表示(3)</ComboBoxItem>
-                                <ComboBoxItem>デバッグ表示(4)</ComboBoxItem>
+                            <ComboBox x:Name="cmbBoxGlobalVerbosity" HorizontalAlignment="Left" Margin="116,0,0,0" VerticalAlignment="Top" Width="141" SelectedIndex="0">
+                                <ComboBoxItem Content="指定しない"/>
+                                <ComboBoxItem Content="なし(0)"/>
+                                <ComboBoxItem Content="エラーのみ(1)"/>
+                                <ComboBoxItem Content="警告表示(2)"/>
+                                <ComboBoxItem Content="詳細表示(3)"/>
+                                <ComboBoxItem Content="デバッグ表示(4)"/>
                             </ComboBox>
                             <CheckBox x:Name="cBBufferSize" Content="入出力バッファサイズを指定する" HorizontalAlignment="Left" Margin="10,31,0,0" VerticalAlignment="Top"/>
                             <TextBox x:Name="textBoxBufferSize" HorizontalAlignment="Left" Height="23" Margin="183,27,0,0" TextWrapping="Wrap" Text="8192" VerticalAlignment="Top" Width="74"/>
@@ -88,17 +76,17 @@
                         <Grid Margin="0,0,0,0">
                             <Label x:Name="labelExtend21" Content="入力オーダー" HorizontalAlignment="Left" Margin="10,-1,0,0" VerticalAlignment="Top"/>
                             <ComboBox x:Name="cmbBoxInEndian" HorizontalAlignment="Left" Margin="118,0,0,0" VerticalAlignment="Top" Width="139" SelectedIndex="0">
-                                <ComboBoxItem>変更なし</ComboBoxItem>
-                                <ComboBoxItem>リトルエンディアン</ComboBoxItem>
-                                <ComboBoxItem>ビッグエンディアン</ComboBoxItem>
-                                <ComboBoxItem>スワップ</ComboBoxItem>
+                                <ComboBoxItem Content="変更なし"/>
+                                <ComboBoxItem Content="リトルエンディアン"/>
+                                <ComboBoxItem Content="ビッグエンディアン"/>
+                                <ComboBoxItem Content="スワップ"/>
                             </ComboBox>
                             <Label x:Name="labelExtend22" Content="出力オーダー" HorizontalAlignment="Left" Margin="10,25,0,0" VerticalAlignment="Top"/>
                             <ComboBox x:Name="cmbBoxOutEndian" HorizontalAlignment="Left" Margin="118,27,0,0" VerticalAlignment="Top" Width="139" SelectedIndex="0">
-                                <ComboBoxItem>変更なし</ComboBoxItem>
-                                <ComboBoxItem>リトルエンディアン</ComboBoxItem>
-                                <ComboBoxItem>ビッグエンディアン</ComboBoxItem>
-                                <ComboBoxItem>スワップ</ComboBoxItem>
+                                <ComboBoxItem Content="変更なし"/>
+                                <ComboBoxItem Content="リトルエンディアン"/>
+                                <ComboBoxItem Content="ビッグエンディアン"/>
+                                <ComboBoxItem Content="スワップ"/>
                             </ComboBox>
                             <CheckBox x:Name="cBComment" Content="コメントを指定" HorizontalAlignment="Left" Margin="10,56,0,0" VerticalAlignment="Top"/>
                             <TextBox x:Name="textBoxComment" HorizontalAlignment="Left" Height="23" Margin="118,54,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="139"/>
@@ -107,6 +95,49 @@
                     <GroupBox x:Name="groupBoxInExt" Header="入力オプション" Margin="291,102,0,0" HorizontalAlignment="Left" Width="279">
                         <CheckBox x:Name="cBIgnoreLength" Content="ヘッダーの入力サイズを無視" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
                     </GroupBox>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Effect">
+                <Grid Background="#FFE5E5E5">
+                    <Label x:Name="labelEff1" Content="エフェクタ" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <ComboBox x:Name="cmbBoxEffType" HorizontalAlignment="Left" Margin="86,13,0,0" VerticalAlignment="Top" Width="141" SelectedIndex="0" SelectionChanged="cmbBoxEffType_SelectionChanged" />
+                    <!-- -->
+                    <Label x:Name="labelEffParam1" Content="パラメータ1" HorizontalAlignment="Left" Margin="10,39,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="textBoxEffParam1" HorizontalAlignment="Left" Height="23" Margin="86,40,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="141"/>
+                    <Label x:Name="labelEffUnit1" Content="" HorizontalAlignment="Left" Margin="232,39,0,0" VerticalAlignment="Top"/>
+                    <!-- -->
+                    <Label x:Name="labelEffParam2" Content="パラメータ2" HorizontalAlignment="Left" Margin="10,67,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="textBoxEffParam2" HorizontalAlignment="Left" Height="23" Margin="86,68,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="141"/>
+                    <Label x:Name="labelEffUnit2" Content="" HorizontalAlignment="Left" Margin="232,67,0,0" VerticalAlignment="Top"/>
+                    <!-- -->
+                    <Label x:Name="labelEffParam3" Content="パラメータ3" HorizontalAlignment="Left" Margin="10,95,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="textBoxEffParam3" HorizontalAlignment="Left" Height="23" Margin="86,96,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="141"/>
+                    <Label x:Name="labelEffUnit3" Content="" HorizontalAlignment="Left" Margin="232,95,0,0" VerticalAlignment="Top"/>
+                    <ListBox x:Name="listBoxEffects" HorizontalAlignment="Right" Height="147" VerticalAlignment="Top" Width="182" Margin="0,10,10,0" ItemsSource="{Binding}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Effect}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <Button x:Name="btnEffAdd" Content="追加" HorizontalAlignment="Right" Margin="0,0,197,5" VerticalAlignment="Bottom" Width="75" Click="btnEffAdd_Click"/>
+                    <Button x:Name="btnEffUp" Content="↑" HorizontalAlignment="Left" Margin="393,162,0,0" VerticalAlignment="Top" Width="48" Click="btnEffUp_Click"/>
+                    <Button x:Name="btnEffDown" Content="↓" HorizontalAlignment="Left" Margin="446,162,0,0" VerticalAlignment="Top" Width="48" Click="btnEffDown_Click"/>
+                    <Button x:Name="btnEffDel" Content="削除" HorizontalAlignment="Left" Margin="499,162,0,0" VerticalAlignment="Top" Width="76" Click="btnEffDel_Click"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Help">
+                <Grid Background="#FFE5E5E5">
+                    <Label x:Name="labelHelp1" Content="区分" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
+                    <ComboBox x:Name="cmbBoxHelpDiv" HorizontalAlignment="Left" Margin="86,13,0,0" VerticalAlignment="Top" Width="141" SelectedIndex="0" SelectionChanged="cmbBoxHelpDiv_SelectionChanged">
+                        <ComboBoxItem>全体</ComboBoxItem>
+                        <ComboBoxItem>フォーマット</ComboBoxItem>
+                        <ComboBoxItem>エフェクト</ComboBoxItem>
+                    </ComboBox>
+                    <Label x:Name="labelHelp2" Content="フォーマット" HorizontalAlignment="Left" Margin="10,41,0,0" VerticalAlignment="Top"/>
+                    <ComboBox x:Name="cmbBoxHelp2nd" HorizontalAlignment="Left" Margin="86,45,0,0" VerticalAlignment="Top" Width="141" IsEnabled="False"/>
                 </Grid>
             </TabItem>
             <TabItem Header="GUI設定">

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 
 namespace SoXGUI
@@ -90,18 +91,34 @@ namespace SoXGUI
         public string Name { get; private set; }
         public string Unit { get; private set; }
         public bool IsSelectable { get; private set; }
+        public string[] Values { get; private set; }
 
-        public EffectParamCombi(string name, string unit, bool isSelectable)
+        public EffectParamCombi(string name, string unit)
         {
             Name = name;
             Unit = unit;
-            IsSelectable = isSelectable;
+            IsSelectable = false;
+            Values = null;
+        }
+
+        public EffectParamCombi(string name, string unit, string[] list)
+        {
+            Name = name;
+            Unit = unit;
+            IsSelectable = true;
+            Values = list;
         }
     }
 
     public interface ISoXEffectParam
     {
-        List<EffectParamCombi> getParamCombi();
+        /// <summary>
+        /// オプションパラメータ生成
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        string getOptionString(List<string> list);
+        ReadOnlyCollection<EffectParamCombi> getParamCombi();
     }
 
     /// <summary>
@@ -109,9 +126,14 @@ namespace SoXGUI
     /// </summary>
     public class NoneParamEffect : ISoXEffectParam
     {
-        public List<EffectParamCombi> getParamCombi()
+        public string getOptionString(List<string> list)
         {
-            return new List<EffectParamCombi>();
+            return " ";
+        }
+
+        public ReadOnlyCollection<EffectParamCombi> getParamCombi()
+        {
+            return new ReadOnlyCollection<EffectParamCombi>(new List<EffectParamCombi>());
         }
     }
 
@@ -125,15 +147,90 @@ namespace SoXGUI
     {
         private List<EffectParamCombi> list;
 
-        public List<EffectParamCombi> getParamCombi()
+        public string getOptionString(List<string> list)
         {
-            return list;
+            if (list == null) {
+                throw new ArgumentNullException();
+            }
+            if (list.Count < 1) {
+                throw new ArgumentException();
+            }
+            return list[0] + " ";
+        }
+
+        public ReadOnlyCollection<EffectParamCombi> getParamCombi()
+        {
+            return new ReadOnlyCollection<EffectParamCombi>(list);
         }
 
         public OneParamEffect(string name, string unit)
         {
             list = new List<EffectParamCombi>();
-            list.Add(new EffectParamCombi(name, unit, false));
+            list.Add(new EffectParamCombi(name, unit));
+        }
+    }
+
+    public class BasicFilterParamEffect : ISoXEffectParam
+    {
+        private List<EffectParamCombi> list;
+
+        public string getOptionString(List<string> list)
+        {
+            if (list == null) {
+                throw new ArgumentNullException();
+            }
+            if (list.Count < 2) {
+                throw new ArgumentException();
+            }
+            StringBuilder sb = new StringBuilder(16);
+            sb.Append(list[0]);     // 周波数
+            sb.Append(" ");
+            sb.Append(list[1]);     // width
+            sb.Append(createUnitString(list[2]));
+            sb.Append(" ");
+            return sb.ToString();
+        }
+
+        public ReadOnlyCollection<EffectParamCombi> getParamCombi()
+        {
+            return new ReadOnlyCollection<EffectParamCombi>(list);
+        }
+
+        public BasicFilterParamEffect()
+        {
+            list = new List<EffectParamCombi>()
+            {
+                new EffectParamCombi("周波数（カットオフ）", "Hz"),
+                new EffectParamCombi("幅", ""),
+                new EffectParamCombi("幅の単位", "", new string[] { "Hz", "kHz", "Octaves", "Q値" })
+            };
+        }
+
+        /// <summary>
+        /// 選択単位からオプション文字列への変換
+        /// </summary>
+        /// <param name="s">選択単位の文字列</param>
+        /// <returns>オプションに付与する文字列</returns>
+        private string createUnitString(string s)
+        {
+            string u = "";
+            switch (s) {
+                case "Hz":
+                    u = "h";
+                    break;
+                case "kHz":
+                    u = "k";
+                    break;
+                case "Octaves":
+                    u = "o";
+                    break;
+                case "Q値":
+                    u = "q";
+                    break;
+                default:
+                    break;
+            }
+            return u;
         }
     }
 
@@ -153,8 +250,12 @@ namespace SoXGUI
         };
         public static readonly Dictionary<string, ISoXEffectParam> effDict = new Dictionary<string, ISoXEffectParam>()
         {
+            { "allpass", new BasicFilterParamEffect() },
+            { "bandreject", new BasicFilterParamEffect() },
+            { "earwax", new NoneParamEffect() },
             { "norm", new OneParamEffect("ゲイン", "dB(～0dB)") },
-            { "reverse", new NoneParamEffect() }
+            { "reverse", new NoneParamEffect() },
+            { "speed", new OneParamEffect("速度","倍率(0～1.0～)") }
         };
         public static readonly string[] format = new string[] { "8svx", "aif", "aifc", "aiff", "aiffc", "al", "amb", "amr-nb", "amr-wb", "anb", "au", "avr", "awb", "cdda", "cdr", "cvs", "cvsd", "cvu", "dat", "dvms", "f32", "f4", "f64", "f8", "flac", "fssd", "gsm", "gsrt", "hcom", "htk", "ima", "ircam", "la", "lpc", "lpc10", "lu", "maud", "mp2", "mp3", "nist", "ogg", "prc", "raw", "s1", "s16", "s2", "s24", "s3", "s32", "s4", "s8", "sb", "sf", "sl", "sln", "smp", "snd", "sndr", "sndt", "sou", "sox", "sph", "sw", "txw", "u1", "u16", "u2", "u24", "u3", "u32", "u4", "u8", "ub", "ul", "uw", "vms", "voc", "vorbis", "vox", "wav", "wavpcm", "wv", "wve", "xa" };
         public static readonly string[] effect = new string[] { "allpass", "band", "bandpass", "bandreject", "bass", "bend", "biquad", "chorus", "channels", "compand", "contrast", "dcshift", "deemph", "delay", "dither", "divide", "downsample", "earwax", "echo", "echos", "equalizer", "fade", "fir", "firfit", "flanger", "gain", "highpass", "hilbert", "input", "ladspa", "loudness", "lowpass", "mcompand", "noiseprof", "noisered", "norm", "oops", "output", "overdrive", "pad", "phaser", "pitch", "rate", "remix", "repeat", "reverb", "reverse", "riaa", "silence", "sinc", "spectrogram", "speed", "splice", "stat", "stats", "stretch", "swap", "synth", "tempo", "treble", "tremolo", "trim", "upsample", "vad", "vol" };

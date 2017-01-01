@@ -147,52 +147,14 @@ namespace SoXGUI
 
         private void cmbBoxEffType_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
+            List<EffectsInputUISet> uiList = new List<EffectsInputUISet>()
+            {
+                new EffectsInputUISet(label:labelEffParam1,textBox:textBoxEffParam1,comboBox:cmbBoxEffParam1, unit:labelEffUnit1),
+                new EffectsInputUISet(label:labelEffParam2,textBox:textBoxEffParam2,comboBox:cmbBoxEffParam2, unit:labelEffUnit2),
+                new EffectsInputUISet(label:labelEffParam3,textBox:textBoxEffParam3,comboBox:cmbBoxEffParam3, unit:labelEffUnit3)
+            };
             string s = SoXConstants.effect[cmbBoxEffType.SelectedIndex];
-            switch (s) {
-                case "allpass":
-                    labelEffParam1.Content = "カットオフ";
-                    //textBoxEffParam1.Visibility = Visibility.Hidden;
-                    textBoxEffParam1.IsEnabled = true;
-                    labelEffUnit1.Content = "kHz";
-                    btnEffAdd.IsEnabled = true;
-                    break;
-                case "norm": {
-                        List<EffectsInputUISet> uiList = new List<EffectsInputUISet>()
-                        {
-                            new EffectsInputUISet(label:labelEffParam1,textBox:textBoxEffParam1,unit:labelEffUnit1),
-                            new EffectsInputUISet(label:labelEffParam2,textBox:textBoxEffParam2,unit:labelEffUnit2),
-                            new EffectsInputUISet(label:labelEffParam3,textBox:textBoxEffParam3,unit:labelEffUnit3)
-                        };
-                        btnEffAdd.IsEnabled = loadEffectsInputParameter(s, uiList);
-                    }
-                    //labelEffParam1.Content = "ゲイン";
-                    //textBoxEffParam1.IsEnabled = true;
-                    //labelEffUnit1.Content = "dB(～0dB)";
-                    //btnEffAdd.IsEnabled = true;
-                    break;
-                case "speed":
-                    labelEffParam1.Content = "速度";
-                    textBoxEffParam1.IsEnabled = true;
-                    labelEffUnit1.Content = "倍率(0～1.0～)";
-                    btnEffAdd.IsEnabled = true;
-                    break;
-                case "reverse":
-                    textBoxEffParam1.IsEnabled = false;
-                    btnEffAdd.IsEnabled = true;
-                    break;
-                default: {
-                        List<EffectsInputUISet> uiList = new List<EffectsInputUISet>()
-                        {
-                            new EffectsInputUISet(label:labelEffParam1,textBox:textBoxEffParam1,unit:labelEffUnit1),
-                            new EffectsInputUISet(label:labelEffParam2,textBox:textBoxEffParam2,unit:labelEffUnit2),
-                            new EffectsInputUISet(label:labelEffParam3,textBox:textBoxEffParam3,unit:labelEffUnit3)
-                        };
-                        btnEffAdd.IsEnabled = loadEffectsInputParameter(s, uiList);
-                    }
-                    //textBoxEffParam1.IsEnabled = false;
-                    //btnEffAdd.IsEnabled = false;
-                    break;
-            }
+            btnEffAdd.IsEnabled = loadEffectsInputParameter(s, uiList);
         }
 
         /// <summary>
@@ -202,14 +164,16 @@ namespace SoXGUI
         /// <param name="e"></param>
         private void btnEffAdd_Click(object sender, RoutedEventArgs e)
         {
-            string s = SoXConstants.effect[cmbBoxEffType.SelectedIndex];
-            switch (s) {
-                case "reverse":
-                    m_EffList.Add(new EffCmd(s, "reverse"));
-                    break;
-                default:
-                    break;
-            }
+            List<EffectsInputUISet> uiList = new List<EffectsInputUISet>()
+            {
+                new EffectsInputUISet(label:labelEffParam1,textBox:textBoxEffParam1,comboBox:cmbBoxEffParam1, unit:labelEffUnit1),
+                new EffectsInputUISet(label:labelEffParam2,textBox:textBoxEffParam2,comboBox:cmbBoxEffParam2, unit:labelEffUnit2),
+                new EffectsInputUISet(label:labelEffParam3,textBox:textBoxEffParam3,comboBox:cmbBoxEffParam3, unit:labelEffUnit3)
+            };
+            string name = SoXConstants.effect[cmbBoxEffType.SelectedIndex];
+            string opt = createEffectsOptionString(name, uiList);
+            List<string> prms = readEffectValues(name, uiList);
+            m_EffList.Add(new EffCmd(name, opt, prms));
         }
 
         private void btnEffDel_Click(object sender, RoutedEventArgs e)
@@ -221,15 +185,16 @@ namespace SoXGUI
 
         private void btnEffUp_Click(object sender, RoutedEventArgs e)
         {
-            if (listBoxEffects.SelectedIndex != -1) {
-
+            if (listBoxEffects.SelectedIndex > 0) {
+                m_EffList.Move(listBoxEffects.SelectedIndex, listBoxEffects.SelectedIndex - 1);
             }
         }
 
         private void btnEffDown_Click(object sender, RoutedEventArgs e)
         {
-            if (listBoxEffects.SelectedIndex != -1) {
-
+            if (listBoxEffects.SelectedIndex != -1
+                && listBoxEffects.SelectedIndex < listBoxEffects.Items.Count - 1) {
+                m_EffList.Move(listBoxEffects.SelectedIndex, listBoxEffects.SelectedIndex + 1);
             }
         }
 
@@ -355,11 +320,14 @@ namespace SoXGUI
         public string Effect { get; private set; }
         /// <summary>エフェクトのコマンドオプション</summary>
         public string Command { get; private set; }
+        /// <summary>エフェクトの表示用データ</summary>
+        public List<string> Params { get; private set; }
 
-        public EffCmd(string name, string cmd)
+        public EffCmd(string name, string cmd, List<string> prms)
         {
             Effect = name;
             Command = cmd;
+            Params = prms;
         }
     }
 }

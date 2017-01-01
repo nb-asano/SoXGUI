@@ -19,6 +19,7 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 using System.Windows;
@@ -293,6 +294,19 @@ namespace SoXGUI
             return sb.ToString();
         }
 
+        private string createAllEffectsOption()
+        {
+            StringBuilder sb = new StringBuilder(32);
+
+            foreach (EffCmd ec in m_EffList) {
+                sb.Append(ec.Effect);
+                sb.Append(" ");
+                sb.Append(ec.Command);
+            }
+
+            return sb.ToString();
+        }
+
         #endregion
 
         /// <summary>
@@ -337,6 +351,7 @@ namespace SoXGUI
             sb.Append("\"");
             sb.Append(textBoxOutputFile.Text);
             sb.Append("\" ");
+            sb.Append(createAllEffectsOption());
 
             if (showonly) {
                 sendMessageToOutput("sox.exe " + sb.ToString());
@@ -422,12 +437,18 @@ namespace SoXGUI
         {
             public readonly System.Windows.Controls.Label Label;
             public readonly System.Windows.Controls.TextBox TextBox;
+            public readonly System.Windows.Controls.ComboBox ComboBox;
             public readonly System.Windows.Controls.Label Unit;
 
-            public EffectsInputUISet(System.Windows.Controls.Label label, System.Windows.Controls.TextBox textBox, System.Windows.Controls.Label unit)
+            public EffectsInputUISet(
+                System.Windows.Controls.Label label, 
+                System.Windows.Controls.TextBox textBox,
+                System.Windows.Controls.ComboBox comboBox, 
+                System.Windows.Controls.Label unit)
             {
                 Label = label;
                 TextBox = textBox;
+                ComboBox = comboBox;
                 Unit = unit;
             }
         }
@@ -437,22 +458,32 @@ namespace SoXGUI
             bool isEnable = false;
 
             if (SoXConstants.effDict.ContainsKey(name)) {
+                // 対応している場合
                 isEnable = true;
                 ISoXEffectParam param = SoXConstants.effDict[name];
 
-                List<EffectParamCombi> listEPC = param.getParamCombi();
+                ReadOnlyCollection<EffectParamCombi> listEPC = param.getParamCombi();
                 for (int i = 0; i < uiList.Count; i++) {
                     if (i < listEPC.Count) {
                         uiList[i].Label.Content = listEPC[i].Name;
                         uiList[i].Unit.Content = listEPC[i].Unit;
+
                         if (listEPC[i].IsSelectable) {
+                            // 選択式の場合
                             uiList[i].TextBox.Visibility = Visibility.Hidden;
+                            uiList[i].ComboBox.Visibility = Visibility.Visible;
+                            uiList[i].ComboBox.IsEnabled = true;
+                            uiList[i].ComboBox.ItemsSource = listEPC[i].Values;
+                            uiList[i].ComboBox.SelectedIndex = 0;
                         } else {
+                            // 入力式の場合
                             uiList[i].TextBox.Visibility = Visibility.Visible;
+                            uiList[i].ComboBox.Visibility = Visibility.Hidden;
                             uiList[i].TextBox.IsEnabled = true;
                         }
                     } else {
                         // テキストにして使用不可にする
+                        uiList[i].ComboBox.Visibility = Visibility.Hidden;
                         uiList[i].TextBox.Visibility = Visibility.Visible;
                         uiList[i].TextBox.IsEnabled = false;
                     }
@@ -460,11 +491,56 @@ namespace SoXGUI
             } else {
                 // 未対応の場合
                 foreach (EffectsInputUISet eui in uiList) {
+                    eui.ComboBox.Visibility = Visibility.Hidden;
                     eui.TextBox.Visibility = Visibility.Visible;
                     eui.TextBox.IsEnabled = false;
                 }
             }
             return isEnable;
+        }
+
+        /// <summary>
+        /// 指定されたエフェクトオプションからオプション文字列を作成します。
+        /// </summary>
+        /// <param name="name">エフェクト名</param>
+        /// <param name="uiList">エフェクトオプションを保持しているUI要素のリスト</param>
+        /// <returns></returns>
+        private string createEffectsOptionString(string name, List<EffectsInputUISet> uiList)
+        {
+            string opt = "";
+            if (SoXConstants.effDict.ContainsKey(name)) {
+                ISoXEffectParam param = SoXConstants.effDict[name];
+
+                List<string> pList = readEffectValues(name, uiList);
+                opt = param.getOptionString(pList);
+            }
+            return opt;
+        }
+
+        /// <summary>
+        /// エフェクトオプションを保持しているUI要素から設定値を読み出します。
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="uiList"></param>
+        /// <returns></returns>
+        private List<string> readEffectValues(string name, List<EffectsInputUISet> uiList)
+        {
+            List<string> pList = new List<string>();
+
+            if (SoXConstants.effDict.ContainsKey(name)) {
+                ISoXEffectParam param = SoXConstants.effDict[name];
+                ReadOnlyCollection<EffectParamCombi> listEPC = param.getParamCombi();
+                for (int i = 0; i < listEPC.Count; i++) {
+                    string s = "";
+                    if (listEPC[i].IsSelectable) {
+                        s = uiList[i].ComboBox.Text;
+                    } else {
+                        s = uiList[i].TextBox.Text;
+                    }
+                    pList.Add(s);
+                }
+            }
+            return pList;
         }
     }
 }

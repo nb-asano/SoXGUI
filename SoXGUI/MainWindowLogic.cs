@@ -438,18 +438,15 @@ namespace SoXGUI
             public readonly System.Windows.Controls.Label Label;
             public readonly System.Windows.Controls.TextBox TextBox;
             public readonly System.Windows.Controls.ComboBox ComboBox;
-            public readonly System.Windows.Controls.Label Unit;
 
             public EffectsInputUISet(
                 System.Windows.Controls.Label label, 
                 System.Windows.Controls.TextBox textBox,
-                System.Windows.Controls.ComboBox comboBox, 
-                System.Windows.Controls.Label unit)
+                System.Windows.Controls.ComboBox comboBox)
             {
                 Label = label;
                 TextBox = textBox;
                 ComboBox = comboBox;
-                Unit = unit;
             }
         }
 
@@ -465,8 +462,8 @@ namespace SoXGUI
                 ReadOnlyCollection<EffectParamCombi> listEPC = param.getParamCombi();
                 for (int i = 0; i < uiList.Count; i++) {
                     if (i < listEPC.Count) {
+                        uiList[i].Label.Visibility = Visibility.Visible;
                         uiList[i].Label.Content = listEPC[i].Name;
-                        uiList[i].Unit.Content = listEPC[i].Unit;
 
                         if (listEPC[i].IsSelectable) {
                             // 選択式の場合
@@ -483,20 +480,33 @@ namespace SoXGUI
                         }
                     } else {
                         // テキストにして使用不可にする
+                        uiList[i].Label.Visibility = Visibility.Hidden;
                         uiList[i].ComboBox.Visibility = Visibility.Hidden;
-                        uiList[i].TextBox.Visibility = Visibility.Visible;
+                        uiList[i].TextBox.Visibility = Visibility.Hidden;
                         uiList[i].TextBox.IsEnabled = false;
                     }
                 }
             } else {
                 // 未対応の場合
                 foreach (EffectsInputUISet eui in uiList) {
+                    eui.Label.Visibility = Visibility.Hidden;
                     eui.ComboBox.Visibility = Visibility.Hidden;
-                    eui.TextBox.Visibility = Visibility.Visible;
+                    eui.TextBox.Visibility = Visibility.Hidden;
                     eui.TextBox.IsEnabled = false;
                 }
             }
             return isEnable;
+        }
+
+        private bool isValidEffectsOptionString(string name, List<EffectsInputUISet> uiList)
+        {
+            if (SoXConstants.effDict.ContainsKey(name)) {
+                ISoXEffectParam param = SoXConstants.effDict[name];
+
+                List<string> pList = readEffectValues(name, uiList);
+                return param.isValidOption(pList);
+            }
+            return false;
         }
 
         /// <summary>
@@ -504,7 +514,7 @@ namespace SoXGUI
         /// </summary>
         /// <param name="name">エフェクト名</param>
         /// <param name="uiList">エフェクトオプションを保持しているUI要素のリスト</param>
-        /// <returns></returns>
+        /// <returns>オプション文字列</returns>
         private string createEffectsOptionString(string name, List<EffectsInputUISet> uiList)
         {
             string opt = "";

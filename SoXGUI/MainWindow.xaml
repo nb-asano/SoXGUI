@@ -99,24 +99,38 @@
             </TabItem>
             <TabItem Header="Effect">
                 <Grid Background="#FFE5E5E5">
-                    <Label x:Name="labelEff1" Content="エフェクタ" HorizontalAlignment="Left" Margin="10,10,0,0" VerticalAlignment="Top"/>
-                    <ComboBox x:Name="cmbBoxEffType" HorizontalAlignment="Left" Margin="122,12,0,0" VerticalAlignment="Top" Width="141" SelectedIndex="0" SelectionChanged="cmbBoxEffType_SelectionChanged" />
+                    <Label x:Name="labelEff1" Content="エフェクタ" HorizontalAlignment="Left" Margin="10,8,0,0" VerticalAlignment="Top"/>
+                    <ComboBox x:Name="cmbBoxEffType" HorizontalAlignment="Left" Margin="122,10,0,0" VerticalAlignment="Top" Width="100" SelectedIndex="0" SelectionChanged="cmbBoxEffType_SelectionChanged" />
                     <!-- -->
-                    <Label x:Name="labelEffParam1" Content="パラメータ1" HorizontalAlignment="Left" Margin="10,39,0,0" VerticalAlignment="Top"/>
-                    <TextBox x:Name="textBoxEffParam1" HorizontalAlignment="Left" Height="23" Margin="122,40,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="141"/>
-                    <ComboBox x:Name="cmbBoxEffParam1" HorizontalAlignment="Left" Margin="122,40,0,0" VerticalAlignment="Top" Width="141" />
-                    <Label x:Name="labelEffUnit1" Content="" HorizontalAlignment="Left" Margin="268,39,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="labelEffParam1" Content="パラメータ1" HorizontalAlignment="Left" Margin="10,45,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="textBoxEffParam1" HorizontalAlignment="Left" Height="23" Margin="122,46,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="100"/>
+                    <ComboBox x:Name="cmbBoxEffParam1" HorizontalAlignment="Left" Margin="122,46,0,0" VerticalAlignment="Top" Width="100" />
                     <!-- -->
-                    <Label x:Name="labelEffParam2" Content="パラメータ2" HorizontalAlignment="Left" Margin="10,67,0,0" VerticalAlignment="Top"/>
-                    <TextBox x:Name="textBoxEffParam2" HorizontalAlignment="Left" Height="23" Margin="122,68,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="141"/>
-                    <ComboBox x:Name="cmbBoxEffParam2" HorizontalAlignment="Left" Margin="122,68,0,0" VerticalAlignment="Top" Width="141" />
-                    <Label x:Name="labelEffUnit2" Content="" HorizontalAlignment="Left" Margin="268,67,0,0" VerticalAlignment="Top"/>
+                    <Label x:Name="labelEffParam2" Content="パラメータ2" HorizontalAlignment="Left" Margin="10,73,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="textBoxEffParam2" HorizontalAlignment="Left" Height="23" Margin="122,74,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="100"/>
+                    <ComboBox x:Name="cmbBoxEffParam2" HorizontalAlignment="Left" Margin="122,74,0,0" VerticalAlignment="Top" Width="100" />
                     <!-- -->
-                    <Label x:Name="labelEffParam3" Content="パラメータ3" HorizontalAlignment="Left" Margin="10,95,0,0" VerticalAlignment="Top"/>
-                    <TextBox x:Name="textBoxEffParam3" HorizontalAlignment="Left" Height="23" Margin="122,96,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="141"/>
-                    <ComboBox x:Name="cmbBoxEffParam3" HorizontalAlignment="Left" Margin="122,96,0,0" VerticalAlignment="Top" Width="141" />
-                    <Label x:Name="labelEffUnit3" Content="" HorizontalAlignment="Left" Margin="268,95,0,0" VerticalAlignment="Top"/>
-                    <ListBox x:Name="listBoxEffects" HorizontalAlignment="Right" Height="147" VerticalAlignment="Top" Width="182" Margin="0,10,10,0" ItemsSource="{Binding}">
+                    <Label x:Name="labelEffParam3" Content="パラメータ3" HorizontalAlignment="Left" Margin="10,101,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="textBoxEffParam3" HorizontalAlignment="Left" Height="23" Margin="122,102,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="100"/>
+                    <ComboBox x:Name="cmbBoxEffParam3" HorizontalAlignment="Left" Margin="122,102,0,0" VerticalAlignment="Top" Width="100" />
+                    <!-- -->
+                    <Label x:Name="labelEffParam4" Content="パラメータ4" HorizontalAlignment="Left" Margin="10,129,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="textBoxEffParam4" HorizontalAlignment="Left" Height="23" Margin="122,130,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="100"/>
+                    <ComboBox x:Name="cmbBoxEffParam4" HorizontalAlignment="Left" Margin="122,130,0,0" VerticalAlignment="Top" Width="100" />
+                    <!-- -->
+                    <Label x:Name="labelEffParam5" Content="パラメータ5" HorizontalAlignment="Left" Margin="10,157,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="textBoxEffParam5" HorizontalAlignment="Left" Height="23" Margin="122,158,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="100"/>
+                    <ComboBox x:Name="cmbBoxEffParam5" HorizontalAlignment="Left" Margin="122,158,0,0" VerticalAlignment="Top" Width="100" />
+                    <!-- -->
+                    <Label x:Name="labelEffParam6" Content="パラメータ6" HorizontalAlignment="Left" Margin="232,45,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="textBoxEffParam6" HorizontalAlignment="Left" Height="23" Margin="320,46,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="96"/>
+                    <ComboBox x:Name="cmbBoxEffParam6" HorizontalAlignment="Left" Margin="320,46,0,0" VerticalAlignment="Top" Width="96" />
+                    <!-- -->
+                    <Label x:Name="labelEffParam7" Content="パラメータ7" HorizontalAlignment="Left" Margin="232,73,0,0" VerticalAlignment="Top"/>
+                    <TextBox x:Name="textBoxEffParam7" HorizontalAlignment="Left" Height="23" Margin="320,74,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="96"/>
+                    <ComboBox x:Name="cmbBoxEffParam7" HorizontalAlignment="Left" Margin="320,74,0,0" VerticalAlignment="Top" Width="96" />
+                    <!-- -->
+                    <ListBox x:Name="listBoxEffects" HorizontalAlignment="Right" Height="147" VerticalAlignment="Top" Width="154" Margin="0,10,5,0" ItemsSource="{Binding}">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <StackPanel>
@@ -125,10 +139,10 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    <Button x:Name="btnEffAdd" Content="追加" HorizontalAlignment="Right" Margin="0,0,197,5" VerticalAlignment="Bottom" Width="75" Click="btnEffAdd_Click"/>
-                    <Button x:Name="btnEffUp" Content="↑" HorizontalAlignment="Left" Margin="393,162,0,0" VerticalAlignment="Top" Width="48" Click="btnEffUp_Click"/>
-                    <Button x:Name="btnEffDown" Content="↓" HorizontalAlignment="Left" Margin="446,162,0,0" VerticalAlignment="Top" Width="48" Click="btnEffDown_Click"/>
-                    <Button x:Name="btnEffDel" Content="削除" HorizontalAlignment="Left" Margin="499,162,0,0" VerticalAlignment="Top" Width="76" Click="btnEffDel_Click"/>
+                    <Button x:Name="btnEffAdd" Content="追加" HorizontalAlignment="Right" Margin="0,0,169,5" VerticalAlignment="Bottom" Width="75" Click="btnEffAdd_Click"/>
+                    <Button x:Name="btnEffUp" Content="↑" HorizontalAlignment="Left" Margin="421,162,0,0" VerticalAlignment="Top" Width="40" Click="btnEffUp_Click"/>
+                    <Button x:Name="btnEffDown" Content="↓" HorizontalAlignment="Left" Margin="466,162,0,0" VerticalAlignment="Top" Width="40" Click="btnEffDown_Click"/>
+                    <Button x:Name="btnEffDel" Content="削除" HorizontalAlignment="Left" Margin="511,162,0,0" VerticalAlignment="Top" Width="64" Click="btnEffDel_Click"/>
                 </Grid>
             </TabItem>
             <TabItem Header="Help">

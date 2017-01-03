@@ -85,125 +85,22 @@ namespace SoXGUI
 
     #region エフェクト関連
 
-    public class EffectParamCombi
-    {
-        /// <summary>パラメータ項目名</summary>
-        public string Name { get; private set; }
-        public string Unit { get; private set; }
-        public bool IsSelectable { get; private set; }
-        public string[] Values { get; private set; }
-
-        public EffectParamCombi(string name, string unit)
-        {
-            Name = name;
-            Unit = unit;
-            IsSelectable = false;
-            Values = null;
-        }
-
-        public EffectParamCombi(string name, string unit, string[] list)
-        {
-            Name = name;
-            Unit = unit;
-            IsSelectable = true;
-            Values = list;
-        }
-    }
-
-    public interface ISoXEffectParam
+    public static class EffectParamUtil
     {
         /// <summary>
-        /// オプションパラメータ生成
+        /// 引数リストのチェック処理
         /// </summary>
-        /// <param name="list"></param>
-        /// <returns></returns>
-        string getOptionString(List<string> list);
-        ReadOnlyCollection<EffectParamCombi> getParamCombi();
-    }
-
-    /// <summary>
-    /// パラメータなしを意味する共通のエフェクト情報クラス
-    /// </summary>
-    public class NoneParamEffect : ISoXEffectParam
-    {
-        public string getOptionString(List<string> list)
-        {
-            return " ";
-        }
-
-        public ReadOnlyCollection<EffectParamCombi> getParamCombi()
-        {
-            return new ReadOnlyCollection<EffectParamCombi>(new List<EffectParamCombi>());
-        }
-    }
-
-    /// <summary>
-    /// 1パラメータを意味する共通のエフェクト情報クラス
-    /// </summary>
-    /// <remarks>
-    /// 選択式パラメータには対応していません。
-    /// </remarks>
-    public class OneParamEffect : ISoXEffectParam
-    {
-        private List<EffectParamCombi> list;
-
-        public string getOptionString(List<string> list)
+        /// <param name="count">リストに要求する要素数</param>
+        /// <param name="list">チェック対象のリスト</param>
+        /// <remarks>チェック結果がエラーの場合は例外を投入する</remarks>
+        public static void ListArgumentCheck(int count, List<string> list)
         {
             if (list == null) {
                 throw new ArgumentNullException();
             }
-            if (list.Count < 1) {
+            if (list.Count < count) {
                 throw new ArgumentException();
             }
-            return list[0] + " ";
-        }
-
-        public ReadOnlyCollection<EffectParamCombi> getParamCombi()
-        {
-            return new ReadOnlyCollection<EffectParamCombi>(list);
-        }
-
-        public OneParamEffect(string name, string unit)
-        {
-            list = new List<EffectParamCombi>();
-            list.Add(new EffectParamCombi(name, unit));
-        }
-    }
-
-    public class BasicFilterParamEffect : ISoXEffectParam
-    {
-        private List<EffectParamCombi> list;
-
-        public string getOptionString(List<string> list)
-        {
-            if (list == null) {
-                throw new ArgumentNullException();
-            }
-            if (list.Count < 2) {
-                throw new ArgumentException();
-            }
-            StringBuilder sb = new StringBuilder(16);
-            sb.Append(list[0]);     // 周波数
-            sb.Append(" ");
-            sb.Append(list[1]);     // width
-            sb.Append(createUnitString(list[2]));
-            sb.Append(" ");
-            return sb.ToString();
-        }
-
-        public ReadOnlyCollection<EffectParamCombi> getParamCombi()
-        {
-            return new ReadOnlyCollection<EffectParamCombi>(list);
-        }
-
-        public BasicFilterParamEffect()
-        {
-            list = new List<EffectParamCombi>()
-            {
-                new EffectParamCombi("周波数（カットオフ）", "Hz"),
-                new EffectParamCombi("幅", ""),
-                new EffectParamCombi("幅の単位", "", new string[] { "Hz", "kHz", "Octaves", "Q値" })
-            };
         }
 
         /// <summary>
@@ -211,7 +108,7 @@ namespace SoXGUI
         /// </summary>
         /// <param name="s">選択単位の文字列</param>
         /// <returns>オプションに付与する文字列</returns>
-        private string createUnitString(string s)
+        public static string createUnitString(string s)
         {
             string u = "";
             switch (s) {
@@ -227,10 +124,467 @@ namespace SoXGUI
                 case "Q値":
                     u = "q";
                     break;
+                case "slope":
+                    u = "s";
+                    break;
                 default:
                     break;
             }
             return u;
+        }
+    }
+
+
+    public class EffectParamCombi
+    {
+        /// <summary>パラメータ項目名</summary>
+        public string Name { get; private set; }
+        public bool IsSelectable { get; private set; }
+        public string[] Values { get; private set; }
+
+        public EffectParamCombi(string name, string[] list = null)
+        {
+            Name = name;
+            Values = list;
+            IsSelectable = (Values != null);
+        }
+    }
+
+    public interface ISoXEffectParam
+    {
+        /// <summary>
+        /// オプションパラメータ生成
+        /// </summary>
+        /// <param name="list">入力オプション（文字列）のリスト</param>
+        /// <returns>生成したオプション文字列</returns>
+        string getOptionString(List<string> list);
+        /// <summary>
+        /// オプションの有効性確認
+        /// </summary>
+        /// <param name="list">入力オプション（文字列）のリスト</param>
+        /// <returns>有効なら真</returns>
+        bool isValidOption(List<string> list);
+        /// <summary>
+        /// 入力項目情報取得
+        /// </summary>
+        /// <returns>入力項目のリスト</returns>
+        ReadOnlyCollection<EffectParamCombi> getParamCombi();
+    }
+
+    /// <summary>
+    /// パラメータなしのエフェクト情報クラス
+    /// </summary>
+    public class NoneParamEffect : ISoXEffectParam
+    {
+        public string getOptionString(List<string> list)
+        {
+            return " ";
+        }
+
+        public bool isValidOption(List<string> list)
+        {
+            return true;
+        }
+
+        public ReadOnlyCollection<EffectParamCombi> getParamCombi()
+        {
+            return new ReadOnlyCollection<EffectParamCombi>(new List<EffectParamCombi>());
+        }
+    }
+
+    /// <summary>
+    /// 1パラメータを必須とするエフェクト情報クラス
+    /// </summary>
+    public class OneParamEffect : ISoXEffectParam
+    {
+        private readonly List<EffectParamCombi> m_List = new List<EffectParamCombi>();
+
+        public string getOptionString(List<string> list)
+        {
+            EffectParamUtil.ListArgumentCheck(1, list);
+
+            return list[0] + " ";
+        }
+
+        public bool isValidOption(List<string> list)
+        {
+            EffectParamUtil.ListArgumentCheck(1, list);
+
+            return !string.IsNullOrWhiteSpace(list[0]);
+        }
+
+        public ReadOnlyCollection<EffectParamCombi> getParamCombi()
+        {
+            return new ReadOnlyCollection<EffectParamCombi>(m_List);
+        }
+
+        public OneParamEffect(string name)
+        {
+            m_List.Add(new EffectParamCombi(name));
+        }
+    }
+
+    /// <summary>
+    /// フィルタータイプの基本的なエフェクト情報クラス
+    /// </summary>
+    public class BasicFilterParamEffect : ISoXEffectParam
+    {
+        protected readonly List<EffectParamCombi> m_List = new List<EffectParamCombi>();
+
+        public virtual string getOptionString(List<string> list)
+        {
+            EffectParamUtil.ListArgumentCheck(3, list);
+
+            StringBuilder sb = new StringBuilder(16);
+            sb.Append(list[0]);     // 周波数
+            sb.Append(" ");
+            sb.Append(list[1]);     // width
+            sb.Append(EffectParamUtil.createUnitString(list[2]));
+            sb.Append(" ");
+            return sb.ToString();
+        }
+
+        public virtual bool isValidOption(List<string> list)
+        {
+            EffectParamUtil.ListArgumentCheck(3, list);
+
+            if (string.IsNullOrWhiteSpace(list[0]) || string.IsNullOrWhiteSpace(list[1])) {
+                return false;
+            }
+            return true;
+        }
+
+        public ReadOnlyCollection<EffectParamCombi> getParamCombi()
+        {
+            return new ReadOnlyCollection<EffectParamCombi>(m_List);
+        }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public BasicFilterParamEffect()
+            : this(new List<EffectParamCombi>()
+            {
+                new EffectParamCombi("周波数（Hz）"),
+                new EffectParamCombi("幅"),
+                new EffectParamCombi("幅の単位", new string[] { "Hz", "kHz", "Octaves", "Q値" })
+            })
+        { }
+
+        /// <summary>
+        /// パラメータ設定用コンストラクタ。派生クラスから使用。このクラスもこのコンストラクタを暗に使用
+        /// </summary>
+        /// <param name="list"></param>
+        protected BasicFilterParamEffect(List<EffectParamCombi> list)
+        {
+            m_List.AddRange(list);
+        }
+    }
+
+    /// <summary>
+    /// 極の指定が可能なフィルターのエフェクト情報クラス
+    /// </summary>
+    public class PoleFilterParamEffect : BasicFilterParamEffect
+    {
+        public override string getOptionString(List<string> list)
+        {
+            EffectParamUtil.ListArgumentCheck(4, list);
+
+            StringBuilder sb = new StringBuilder(32);
+            if (list[0] == "single-pole") {
+                sb.Append("-1 ");
+            } else {
+                sb.Append("-2 ");
+            }
+            sb.Append(list[1]);     // 周波数
+            sb.Append(" ");
+            if (!string.IsNullOrWhiteSpace(list[2])) {
+                sb.Append(list[2]);     // width
+                sb.Append(EffectParamUtil.createUnitString(list[3]));
+                sb.Append(" ");
+            }
+            return sb.ToString();
+        }
+
+        public PoleFilterParamEffect()
+            : base(new List<EffectParamCombi>()
+            {
+                new EffectParamCombi("極", new string[] { "single-pole", "double-pole(default)" }),
+                new EffectParamCombi("周波数（Hz @-3dB）"),
+                new EffectParamCombi("* 幅"),
+                new EffectParamCombi("* 幅の単位", new string[] { "Q値", "Octaves", "Hz", "kHz" })
+            })
+        {
+        }
+    }
+
+    /// <summary>
+    /// BandPassフィルターのエフェクト情報クラス
+    /// </summary>
+    public class BandPassFilterParamEffect : BasicFilterParamEffect
+    {
+        public override string getOptionString(List<string> list)
+        {
+            EffectParamUtil.ListArgumentCheck(4, list);
+
+            StringBuilder sb = new StringBuilder(32);
+            if (list[0] == "skirt") {
+                sb.Append("-c ");
+            }
+            sb.Append(list[1]);     // 周波数
+            sb.Append(" ");
+            sb.Append(list[2]);     // width
+            sb.Append(EffectParamUtil.createUnitString(list[3]));
+            sb.Append(" ");
+            return sb.ToString();
+        }
+
+        public BandPassFilterParamEffect()
+            : base(new List<EffectParamCombi>()
+            {
+                new EffectParamCombi("ゲイン", new string[] { "skirt", "0dB peak(default)" }),
+                new EffectParamCombi("周波数（Hz @-3dB）"),
+                new EffectParamCombi("幅"),
+                new EffectParamCombi("幅の単位", new string[] { "Hz", "kHz", "Octaves", "Q値" })
+            })
+        {
+        }
+    }
+
+    /// <summary>
+    /// ゲイン情報付きのフィルタのエフェクト情報クラス
+    /// </summary>
+    public class GainFilterParamEffect : BasicFilterParamEffect
+    {
+        public override string getOptionString(List<string> list)
+        {
+            EffectParamUtil.ListArgumentCheck(4, list);
+
+            StringBuilder sb = new StringBuilder(32);
+            sb.Append(list[0]);
+            sb.Append(" ");
+            if (list[1] != "") {    // 周波数はオプション
+                sb.Append(list[1]);
+                sb.Append(" ");
+            }
+            if (list[2] != "") {    // widthもオプション
+                sb.Append(list[2]);
+                sb.Append(EffectParamUtil.createUnitString(list[3]));
+                sb.Append(" ");
+            }
+            return sb.ToString();
+        }
+
+        public override bool isValidOption(List<string> list)
+        {
+            EffectParamUtil.ListArgumentCheck(4, list);
+
+            return !string.IsNullOrWhiteSpace(list[0]);
+        }
+
+        public GainFilterParamEffect()
+            : base(new List<EffectParamCombi>()
+            {
+                new EffectParamCombi("ゲイン(-20～20dB)"),
+                new EffectParamCombi("* 周波数(Hz @-3dB)"),
+                new EffectParamCombi("* 幅"),
+                new EffectParamCombi("* 幅の単位", new string[] { "slope", "Hz", "kHz", "Octaves", "Q値" })
+            })
+        {
+        }
+    }
+
+    /// <summary>
+    /// 双二次フィルタのエフェクト情報クラス
+    /// </summary>
+    public class BiQuadParamEffect : ISoXEffectParam
+    {
+        private readonly List<EffectParamCombi> m_List = new List<EffectParamCombi>();
+
+        public string getOptionString(List<string> list)
+        {
+            EffectParamUtil.ListArgumentCheck(6, list);
+
+            StringBuilder sb = new StringBuilder(32);
+            for (int i = 0; i < list.Count; i++) {
+                sb.Append(list[i]);
+                sb.Append(" ");
+            }
+            return sb.ToString();
+        }
+
+        public bool isValidOption(List<string> list)
+        {
+            EffectParamUtil.ListArgumentCheck(6, list);
+
+            foreach (string s in list) {
+                if (string.IsNullOrWhiteSpace(s)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public ReadOnlyCollection<EffectParamCombi> getParamCombi()
+        {
+            return new ReadOnlyCollection<EffectParamCombi>(m_List);
+        }
+
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        public BiQuadParamEffect()
+        {
+            m_List.Add(new EffectParamCombi("b0"));
+            m_List.Add(new EffectParamCombi("b1"));
+            m_List.Add(new EffectParamCombi("b2"));
+            m_List.Add(new EffectParamCombi("a0"));
+            m_List.Add(new EffectParamCombi("a1"));
+            m_List.Add(new EffectParamCombi("a2"));
+        }
+    }
+
+    /// <summary>
+    /// Band指定のエフェクト情報クラス
+    /// </summary>
+    public class BandParamEffect : ISoXEffectParam
+    {
+        private readonly List<EffectParamCombi> m_List = new List<EffectParamCombi>();
+
+        public string getOptionString(List<string> list)
+        {
+            EffectParamUtil.ListArgumentCheck(4, list);
+
+            StringBuilder sb = new StringBuilder(32);
+            if (list[0] == "noise") {
+                sb.Append("-n ");
+            }
+            sb.Append(list[1]);     // 周波数
+            sb.Append(" ");
+            if (list[2] != "") {    // widthはオプション
+                sb.Append(list[2]);
+                sb.Append(EffectParamUtil.createUnitString(list[3]));
+                sb.Append(" ");
+            }
+            return sb.ToString();
+        }
+
+        public ReadOnlyCollection<EffectParamCombi> getParamCombi()
+        {
+            return new ReadOnlyCollection<EffectParamCombi>(m_List);
+        }
+
+        public bool isValidOption(List<string> list)
+        {
+            EffectParamUtil.ListArgumentCheck(2, list);
+
+            if (string.IsNullOrWhiteSpace(list[0]) || string.IsNullOrWhiteSpace(list[1])) {
+                return false;
+            }
+            return true;
+        }
+
+        public BandParamEffect()
+        {
+            m_List.Add(new EffectParamCombi("モード", new string[] { "pitched audio(default)", "noise" }));
+            m_List.Add(new EffectParamCombi("周波数(Hz)"));
+            m_List.Add(new EffectParamCombi("* 幅"));
+            m_List.Add(new EffectParamCombi("* 幅の単位", new string[] { "Hz", "kHz", "Octaves", "Q値" }));
+        }
+    }
+
+    /// <summary>
+    /// コーラスのエフェクト情報クラス
+    /// </summary>
+    /// <remarks>2連、3連には未対応</remarks>
+    public class ChorusParamEffect : ISoXEffectParam
+    {
+        private readonly List<EffectParamCombi> m_List = new List<EffectParamCombi>();
+
+        public string getOptionString(List<string> list)
+        {
+            EffectParamUtil.ListArgumentCheck(7, list);
+
+            StringBuilder sb = new StringBuilder(32);
+            for (int i = 0; i < 6; i++) {
+                sb.Append(list[i]);
+                sb.Append(" ");
+            }
+            sb.Append((list[6] == "sinusoidal") ? "-s" : "-t");
+            sb.Append(" ");
+            return sb.ToString();
+        }
+
+        public ReadOnlyCollection<EffectParamCombi> getParamCombi()
+        {
+            return new ReadOnlyCollection<EffectParamCombi>(m_List);
+        }
+
+        public bool isValidOption(List<string> list)
+        {
+            EffectParamUtil.ListArgumentCheck(7, list);
+
+            foreach (string s in list) {
+                if (string.IsNullOrWhiteSpace(s)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public ChorusParamEffect()
+        {
+            m_List.Add(new EffectParamCombi("Gain-in(比率)"));
+            m_List.Add(new EffectParamCombi("Gain-out(比率)"));
+            m_List.Add(new EffectParamCombi("Delay(msec)"));
+            m_List.Add(new EffectParamCombi("Decay(比率)"));
+            m_List.Add(new EffectParamCombi("変調速度(Hz)"));
+            m_List.Add(new EffectParamCombi("変調深度(msec)"));
+            m_List.Add(new EffectParamCombi("タイプ", new string[] { "sinusoidal", "triangular" }));
+        }
+    }
+
+    /// <summary>
+    /// dcshiftのエフェクト情報クラス
+    /// </summary>
+    public class DCShiftParamEffect : ISoXEffectParam
+    {
+        private readonly List<EffectParamCombi> m_List = new List<EffectParamCombi>();
+
+        public string getOptionString(List<string> list)
+        {
+            EffectParamUtil.ListArgumentCheck(2, list);
+
+            StringBuilder sb = new StringBuilder(16);
+            sb.Append(list[0]);     // シフト量
+            sb.Append(" ");
+            if (!string.IsNullOrWhiteSpace(list[1])) {
+                sb.Append(list[1]); // limitergain
+                sb.Append(EffectParamUtil.createUnitString(list[2]));
+                sb.Append(" ");
+            }
+            return sb.ToString();
+        }
+
+        public ReadOnlyCollection<EffectParamCombi> getParamCombi()
+        {
+            return new ReadOnlyCollection<EffectParamCombi>(m_List);
+        }
+
+        public bool isValidOption(List<string> list)
+        {
+            EffectParamUtil.ListArgumentCheck(2, list);
+
+            if (string.IsNullOrWhiteSpace(list[0])) {
+                return false;
+            }
+            return true;
+        }
+
+        public DCShiftParamEffect()
+        {
+            m_List.Add(new EffectParamCombi("shift(-2.0～2.0)"));
+            m_List.Add(new EffectParamCombi("* Limit(-1.0～1.0)"));
         }
     }
 
@@ -248,14 +602,26 @@ namespace SoXGUI
         {
             { "wav", new SoXParamWav() }
         };
+        /// <summary>
+        /// エフェクトパラメータテーブル
+        /// </summary>
         public static readonly Dictionary<string, ISoXEffectParam> effDict = new Dictionary<string, ISoXEffectParam>()
         {
             { "allpass", new BasicFilterParamEffect() },
+            { "band", new BandParamEffect() },
+            { "bandpass", new BandPassFilterParamEffect() },
             { "bandreject", new BasicFilterParamEffect() },
+            { "bass", new GainFilterParamEffect() },
+            { "biquad", new BiQuadParamEffect() },
+            { "chorus", new ChorusParamEffect() },
+            { "dcshift", new DCShiftParamEffect() },
             { "earwax", new NoneParamEffect() },
-            { "norm", new OneParamEffect("ゲイン", "dB(～0dB)") },
+            { "highpass", new PoleFilterParamEffect() },
+            { "lowpass", new PoleFilterParamEffect() },
+            { "norm", new OneParamEffect("ゲイン(～0dB)") },
             { "reverse", new NoneParamEffect() },
-            { "speed", new OneParamEffect("速度","倍率(0～1.0～)") }
+            { "speed", new OneParamEffect("速度(倍率 > 0.1)") },
+            { "treble", new GainFilterParamEffect() }
         };
         public static readonly string[] format = new string[] { "8svx", "aif", "aifc", "aiff", "aiffc", "al", "amb", "amr-nb", "amr-wb", "anb", "au", "avr", "awb", "cdda", "cdr", "cvs", "cvsd", "cvu", "dat", "dvms", "f32", "f4", "f64", "f8", "flac", "fssd", "gsm", "gsrt", "hcom", "htk", "ima", "ircam", "la", "lpc", "lpc10", "lu", "maud", "mp2", "mp3", "nist", "ogg", "prc", "raw", "s1", "s16", "s2", "s24", "s3", "s32", "s4", "s8", "sb", "sf", "sl", "sln", "smp", "snd", "sndr", "sndt", "sou", "sox", "sph", "sw", "txw", "u1", "u16", "u2", "u24", "u3", "u32", "u4", "u8", "ub", "ul", "uw", "vms", "voc", "vorbis", "vox", "wav", "wavpcm", "wv", "wve", "xa" };
         public static readonly string[] effect = new string[] { "allpass", "band", "bandpass", "bandreject", "bass", "bend", "biquad", "chorus", "channels", "compand", "contrast", "dcshift", "deemph", "delay", "dither", "divide", "downsample", "earwax", "echo", "echos", "equalizer", "fade", "fir", "firfit", "flanger", "gain", "highpass", "hilbert", "input", "ladspa", "loudness", "lowpass", "mcompand", "noiseprof", "noisered", "norm", "oops", "output", "overdrive", "pad", "phaser", "pitch", "rate", "remix", "repeat", "reverb", "reverse", "riaa", "silence", "sinc", "spectrogram", "speed", "splice", "stat", "stats", "stretch", "swap", "synth", "tempo", "treble", "tremolo", "trim", "upsample", "vad", "vol" };

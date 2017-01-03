@@ -149,9 +149,13 @@ namespace SoXGUI
         {
             List<EffectsInputUISet> uiList = new List<EffectsInputUISet>()
             {
-                new EffectsInputUISet(label:labelEffParam1,textBox:textBoxEffParam1,comboBox:cmbBoxEffParam1, unit:labelEffUnit1),
-                new EffectsInputUISet(label:labelEffParam2,textBox:textBoxEffParam2,comboBox:cmbBoxEffParam2, unit:labelEffUnit2),
-                new EffectsInputUISet(label:labelEffParam3,textBox:textBoxEffParam3,comboBox:cmbBoxEffParam3, unit:labelEffUnit3)
+                new EffectsInputUISet(label:labelEffParam1,textBox:textBoxEffParam1,comboBox:cmbBoxEffParam1),
+                new EffectsInputUISet(label:labelEffParam2,textBox:textBoxEffParam2,comboBox:cmbBoxEffParam2),
+                new EffectsInputUISet(label:labelEffParam3,textBox:textBoxEffParam3,comboBox:cmbBoxEffParam3),
+                new EffectsInputUISet(label:labelEffParam4,textBox:textBoxEffParam4,comboBox:cmbBoxEffParam4),
+                new EffectsInputUISet(label:labelEffParam5,textBox:textBoxEffParam5,comboBox:cmbBoxEffParam5),
+                new EffectsInputUISet(label:labelEffParam6,textBox:textBoxEffParam6,comboBox:cmbBoxEffParam6),
+                new EffectsInputUISet(label:labelEffParam7,textBox:textBoxEffParam7,comboBox:cmbBoxEffParam7)
             };
             string s = SoXConstants.effect[cmbBoxEffType.SelectedIndex];
             btnEffAdd.IsEnabled = loadEffectsInputParameter(s, uiList);
@@ -166,14 +170,22 @@ namespace SoXGUI
         {
             List<EffectsInputUISet> uiList = new List<EffectsInputUISet>()
             {
-                new EffectsInputUISet(label:labelEffParam1,textBox:textBoxEffParam1,comboBox:cmbBoxEffParam1, unit:labelEffUnit1),
-                new EffectsInputUISet(label:labelEffParam2,textBox:textBoxEffParam2,comboBox:cmbBoxEffParam2, unit:labelEffUnit2),
-                new EffectsInputUISet(label:labelEffParam3,textBox:textBoxEffParam3,comboBox:cmbBoxEffParam3, unit:labelEffUnit3)
+                new EffectsInputUISet(label:labelEffParam1,textBox:textBoxEffParam1,comboBox:cmbBoxEffParam1),
+                new EffectsInputUISet(label:labelEffParam2,textBox:textBoxEffParam2,comboBox:cmbBoxEffParam2),
+                new EffectsInputUISet(label:labelEffParam3,textBox:textBoxEffParam3,comboBox:cmbBoxEffParam3),
+                new EffectsInputUISet(label:labelEffParam4,textBox:textBoxEffParam4,comboBox:cmbBoxEffParam4),
+                new EffectsInputUISet(label:labelEffParam5,textBox:textBoxEffParam5,comboBox:cmbBoxEffParam5),
+                new EffectsInputUISet(label:labelEffParam6,textBox:textBoxEffParam6,comboBox:cmbBoxEffParam6),
+                new EffectsInputUISet(label:labelEffParam7,textBox:textBoxEffParam7,comboBox:cmbBoxEffParam7)
             };
             string name = SoXConstants.effect[cmbBoxEffType.SelectedIndex];
-            string opt = createEffectsOptionString(name, uiList);
-            List<string> prms = readEffectValues(name, uiList);
-            m_EffList.Add(new EffCmd(name, opt, prms));
+            if (isValidEffectsOptionString(name, uiList)) {
+                string opt = createEffectsOptionString(name, uiList);
+                List<string> prms = readEffectValues(name, uiList);
+                m_EffList.Add(new EffCmd(name, opt, prms));
+            } else {
+                MessageBox.Show("必須パラメータが指定されていません。");
+            }
         }
 
         private void btnEffDel_Click(object sender, RoutedEventArgs e)
